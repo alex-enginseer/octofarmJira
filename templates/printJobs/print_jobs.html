@@ -164,6 +164,14 @@
                     anchor.click();
                 }
             },
+            {
+                label:"Jira Details",
+                action:function(e, row){
+                    //TODO: Add this URL to settings
+                    window.open("https://projects.lib.utah.edu/browse/" + row._row.data.job_name, '_blank')
+                }
+            },
+
         ],
         rowFormatter:function(row){
             var data = row.getData();
