@@ -116,7 +116,7 @@ def receiptPrinter(scrapedPRNumber, printer=''):
 
     try:
         # try to reconnect to printer
-        p = Usb(0x0416, 0x5011, 0, 0x81, 0x03)
+        p = Usb(0x0416, 0x5011, in_ep=0x81, out_ep=0x03)
     except:
         alreadyConnected = True
     try:
