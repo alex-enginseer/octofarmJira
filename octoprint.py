@@ -94,7 +94,6 @@ def start_print_job(job, printer, comment_on_ticket=True):
     if upload_result.ok:
         job.printed_on = printer.id
         job.print_status = PrintStatus.PRINTING.name
-        job.payment_status = PaymentStatus.PRINTING.name
         job.print_started_date = datetime.now()
         commit()
         if config["receipt_printer"]["print_physical_receipt"] is True:
