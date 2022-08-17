@@ -126,20 +126,21 @@ def receiptPrinter(scrapedPRNumber, printer=''):
         alreadyAligned = True
     # create new image large enough to fit super long names
     img = Image.new('RGB', (2400, 400), color=(0, 0, 0))
-    fnt = ImageFont.truetype(r"resources/arialbd.ttf", 110, encoding="unic")
-    tiny = ImageFont.truetype(r"resources/arial.ttf", 20, encoding="unic")
+    fnt = ImageFont.truetype(r"resources/arialbd.ttf", 80, encoding="unic")
+    tiny = ImageFont.truetype(r"resources/arial.ttf", 40, encoding="unic")
     d = ImageDraw.Draw(img)
     d.text((32, 0), scrapedPRNumber, font=fnt, fill=(255, 255, 255))
-    d.text((34, 355), printer, font=tiny, fill=(255, 255, 255))
+    d.text((34, 100), printer, font=tiny, fill=(255, 255, 255))
 
     imageBox = img.getbbox()
     cropped = img.crop(imageBox)
     inverted = ImageOps.invert(cropped)
-    rotated = inverted.rotate(270, expand=True)
+    # rotated = inverted.rotate(270, expand=True)
 
     try:
         # print image
-        p.image(rotated)
+        p.image(inverted)
+        # p.image(rotated)
         # cut point
         p.text("\n\n-                              -\n\n")
     except:
