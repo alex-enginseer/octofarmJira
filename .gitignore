@@ -134,3 +134,4 @@ config_files/printers.yml
 config_files/config.yml
 recources/arial.ttf
 recources/arialbd.ttf
+octofarmJira_database.sqlite
