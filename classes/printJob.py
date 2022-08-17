@@ -144,7 +144,7 @@ class PrintJob(db.Entity):
             'print_started_date': self.print_started_date.strftime("%m/%d/%Y, %H:%M:%S") if self.print_started_date else '',
             'print_finished_date': self.print_finished_date.strftime("%m/%d/%Y, %H:%M:%S") if self.print_finished_date else '',
             'printer_model': self.printer_model.name if self.printer_model else '',
-            'printer_model_id':self.printer_model.id,
+            'printer_model_id':self.printer_model.id if self.printer_model else '',
             'permission_code': self.permission_code.name if self.permission_code else '',
             'weight': self.weight,
             'cost': self.cost,
