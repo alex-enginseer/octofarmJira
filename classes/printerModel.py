@@ -32,6 +32,7 @@ class PrinterModel(db.Entity):
         printer_model.name = form_data['name']
         printer_model.description = form_data['description']
         printer_model.keyword = form_data['keyword']
+        printer_model.auto_start_prints = form_data['auto_start_prints'] == 'true'
 
 
     @staticmethod
@@ -43,5 +44,7 @@ class PrinterModel(db.Entity):
         name = form_data['name']
         description = form_data['description']
         keyword = int(form_data['keyword'])
+        auto_start_prints = form_data['auto_start_prints'] == 'true'
 
-        PrinterModel(name=name, description=description, keyword=keyword)
+
+        PrinterModel(name=name, description=description, keyword=keyword, auto_start_prints=auto_start_prints)
