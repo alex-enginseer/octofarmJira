@@ -55,8 +55,8 @@ def get_issues():
 
 
 def parse_permission_code(description):
-    start = "*Class Key* \\\\"  # TODO: UPDATE TO PERMISSION CODE ONCE FORM CHANGES
-    end = "\n\n*Description of print*"
+    start = "*Funding Code* \\\\"  # TODO: UPDATE TO PERMISSION CODE ONCE FORM CHANGES
+    end = "\n\n\n\n*Description of print*"
     code_string = description[description.find(start) + len(start):description.rfind(end)]
     if code_string:
         code = PermissionCode.get(code=code_string)
