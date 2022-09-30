@@ -24,33 +24,34 @@ def get_issues():
     headers = {
         "Accept": "application/json"
     }
-
-    response = requests.request(
-        "GET",
-        url,
-        headers=headers,
-        auth=auth
-    )
-
-    # parse all open projects:
-    openIssues = json.loads(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
-    issues = []
-    for issue in openIssues['issues']:
-        url = issue['self']
-        headers = {
-            "Accept": "application/json"
-        }
+    try:
         response = requests.request(
             "GET",
             url,
             headers=headers,
             auth=auth
         )
-        if response.ok:
-            issues.append(response)
-        else:
-            print("Bad response from Jira on issue:", issue.split('/')[-1])
 
+        # parse all open projects:
+        openIssues = json.loads(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
+        issues = []
+        for issue in openIssues['issues']:
+            url = issue['self']
+            headers = {
+                "Accept": "application/json"
+            }
+            response = requests.request(
+                "GET",
+                url,
+                headers=headers,
+                auth=auth
+            )
+            if response.ok:
+                issues.append(response)
+            else:
+                print("Bad response from Jira on issue:", issue.split('/')[-1])
+    except requests.exceptions.Timeout as errt:
+        print("Timeout Error while getting issues.")
     return issues
 
 
@@ -221,15 +222,20 @@ def changeStatus(job, transitionCode):
         }
     }
 
-    response = requests.request(
-        "POST",
-        url,
-        headers=headers,
-        json=data,
-        auth=auth
-    )
+    try:
+        response = requests.request(
+            "POST",
+            url,
+            headers=headers,
+            json=data,
+            auth=auth
+        )
+    except requests.exceptions.Timeout as errt:
+        print("Timeout Error while changing status for job: " + job.Get_Name())
+
     if not response.ok:
         print("Error updating status for job: " + job.Get_Name())
+        # TODO: discord notification on timeout
 
     return response.ok
 
@@ -262,13 +268,18 @@ def commentStatus(job, comment, notify_user=True):
 
         }
 
-    response = requests.request(
-        "POST",
-        url,
-        json=payload,
-        headers=headers,
-        auth=auth
-    )
+    try:
+        response = requests.request(
+            "POST",
+            url,
+            json=payload,
+            headers=headers,
+            auth=auth
+        )
+    except requests.exceptions.Timeout as errt:
+        print("Timeout Error while commenting on job: " + job.Get_Name())
+        # TODO: discord notification on timeout
+
     if not response.ok:
         print("Error commenting on job: " + job.Get_Name())
     return response.ok
