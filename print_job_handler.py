@@ -229,7 +229,7 @@ def check_gcode(file):
         if GcodeCheckActions[check_item.check_action] is GcodeCheckActions.REMOVE_COMMAND_ALL:
             file_length = len(parsedGcode)
             for i in range(len(parsedGcode)):
-                if i <= file_length and parsedGcode[i].command == check_item.command:
+                if i < file_length and parsedGcode[i].command == check_item.command:
                     file_length -= 1
                     parsedGcode.pop(i)
 
