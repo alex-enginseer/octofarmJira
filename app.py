@@ -156,7 +156,7 @@ def download_gcode(job_id=None):
 
 @app.route('/printQueue/getQueue', methods=['GET'])
 def get_queue():
-    jobs = PrintJob.Get_All_By_Status(PrintStatus.IN_QUEUE, True)
+    jobs = PrintJob.Get_Print_Queue_And_Printing()
     return jobs
 
 

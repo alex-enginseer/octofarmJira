@@ -65,6 +65,15 @@ class PrintJob(db.Entity):
 
     @staticmethod
     @db_session
+    def Get_Print_Queue_And_Printing():
+        query_result = select(pj for pj in PrintJob if pj.print_status == PrintStatus.PRINTING.name or pj.print_status == PrintStatus.IN_QUEUE.name)
+        print_jobs = []
+        for p in query_result:
+            print_jobs.append(p)
+        return PrintJob.Serialize_Jobs_For_Queue(print_jobs)
+
+    @staticmethod
+    @db_session
     def Get_All(serialize=False):
         query_result = select(pj for pj in PrintJob)
         print_jobs = []
@@ -125,6 +134,8 @@ class PrintJob(db.Entity):
         result = {
             'job_id': self.job_id,
             'job_name': self.job_name,
+            'print_status': self.print_status,
+            'printed_on': self.printed_on.name if self.printed_on else '',
             'job_submitted_date': self.job_submitted_date.strftime("%m/%d/%Y, %H:%M:%S"),
             'printer_model': self.printer_model.name,
             'printer_model_id': self.printer_model.id,
