@@ -139,7 +139,7 @@ def download_gcode(job_id=None):
             return flask.send_file(job.Get_File_Name(), as_attachment=True)
 
         gcode = print_job_handler.download_gcode(job)
-        checked_gcode, check_result, weight, estimated_time, printer_model = print_job_handler.check_gcode(gcode)
+        checked_gcode, check_result, weight, estimated_time, printer_model, fail_message = print_job_handler.check_gcode(gcode)
         if check_result == GcodeStates.VALID:
             generator = (cell for row in gcode
                          for cell in row)

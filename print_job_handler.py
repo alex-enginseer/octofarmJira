@@ -55,7 +55,7 @@ def process_new_jobs():
             handle_job_failure(job, MessageNames.GOOGLE_DRIVE_403_ERROR)
             continue
         else:
-            checked_gcode, check_result, weight, estimated_time, printer_model = check_gcode(gcode)
+            checked_gcode, check_result, weight, estimated_time, printer_model, fail_message = check_gcode(gcode)
             if check_result == GcodeStates.VALID:
                 text_file = open(job.Get_File_Name(), "w")
                 n = text_file.write(checked_gcode)
@@ -72,7 +72,7 @@ def process_new_jobs():
                 commit()
                 jira.send_print_queued(job)
             elif check_result == GcodeStates.INVALID:
-                handle_job_failure(job, MessageNames.GCODE_CHECK_FAIL)
+                handle_job_failure(job, fail_message.name if fail_message else MessageNames.GCODE_CHECK_FAIL)
             elif check_result == GcodeStates.NO_PRINTER_MODEL:
                 handle_job_failure(job, MessageNames.NO_PRINTER_MODEL)
 
@@ -120,7 +120,7 @@ def downloadGoogleDrive(job):
 
 
 def handle_job_failure(job, message_name):
-    message = Message.get(name=message_name.name)
+    message = Message.get(name=message_name if type(message_name) is str else message_name.name)
     if message:
         job.failure_message = message.id
         jira.send_fail_message(job, message.text)
@@ -247,24 +247,34 @@ def check_gcode(file):
                         commandFound = True
                         break
             if not commandFound:
-                return None, GcodeStates.INVALID, 0, 0, printer_model
+                return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message
 
         elif GcodeCheckActions[check_item.check_action] is GcodeCheckActions.COMMAND_PARAM_MIN:
             for line in parsedGcode:
                 if line.command == check_item.command:
                     value = int(filter_characters(line.params[0]))  # Get int value of first param.
                     if value < int(check_item.action_value):
-                        return None, GcodeStates.INVALID, 0, 0, printer_model
+                        return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message
 
         elif GcodeCheckActions[check_item.check_action] is GcodeCheckActions.COMMAND_PARAM_MAX:
             for line in parsedGcode:
                 if line.command == check_item.command:
                     value = int(filter_characters(line.params[0]))  # Get int value of first param.
                     if value > int(check_item.action_value):
-                        return None, GcodeStates.INVALID, 0, 0, printer_model
+                        return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message
+
+        elif GcodeCheckActions[check_item.check_action] is GcodeCheckActions.KEYWORD_CHECK:
+            keyword = Keyword.get(id=check_item.action_value)
+            keywordFound = False;
+            for line in parsedGcode:
+                if line.comment.startswith('printer_notes') and keyword.value in line.comment:
+                    keywordFound = True;
+                    break
+            if not keywordFound:
+                return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message
 
     if printer_model == '':  # Putting this down here so that other checks will be hit first.
-        return None, GcodeStates.NO_PRINTER_MODEL, 0, 0, printer_model
+        return None, GcodeStates.NO_PRINTER_MODEL, 0, 0, printer_model, None
 
     text_gcode = gcode_to_text(parsedGcode)
-    return text_gcode, GcodeStates.VALID, weight, estimated_time, printer_model
+    return text_gcode, GcodeStates.VALID, weight, estimated_time, printer_model, None
