@@ -52,6 +52,7 @@ def get_issues():
                 print("Bad response from Jira on issue:", issue.split('/')[-1])
     except requests.exceptions.Timeout as errt:
         print("Timeout Error while getting issues.")
+        return [];
     return issues
 
 
