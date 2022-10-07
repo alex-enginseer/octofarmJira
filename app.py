@@ -141,7 +141,7 @@ def download_gcode(job_id=None):
         gcode = print_job_handler.download_gcode(job)
         checked_gcode, check_result, weight, estimated_time, printer_model, fail_message = print_job_handler.check_gcode(gcode)
         if check_result == GcodeStates.VALID:
-            generator = (cell for row in gcode
+            generator = (cell for row in checked_gcode
                          for cell in row)
             file_name = job.Get_Name() + '.gcode'
 
