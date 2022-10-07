@@ -147,7 +147,7 @@ def download_gcode(job_id=None):
 
             return flask.Response(generator,
                                   mimetype="text/plain",
-                                  headers={"Content-Disposition": "attachment;filename={" + file_name + "}"})
+                                  headers={"Content-Disposition": "attachment;filename=" + file_name})
         return {'status': 'failed', 'reason': 'gcode_state: ' + check_result.name}
 
     except Exception as e:
