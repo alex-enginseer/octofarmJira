@@ -233,10 +233,10 @@ def changeStatus(job, transitionCode):
         )
     except requests.exceptions.Timeout as errt:
         print("Timeout Error while changing status for job: " + job.Get_Name())
+        return False
 
     if not response.ok:
         print("Error updating status for job: " + job.Get_Name())
-        return False
         # TODO: discord notification on timeout
 
     return response.ok
