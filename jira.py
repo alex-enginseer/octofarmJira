@@ -236,6 +236,7 @@ def changeStatus(job, transitionCode):
 
     if not response.ok:
         print("Error updating status for job: " + job.Get_Name())
+        return False
         # TODO: discord notification on timeout
 
     return response.ok
@@ -279,6 +280,7 @@ def commentStatus(job, comment, notify_user=True):
         )
     except requests.exceptions.Timeout as errt:
         print("Timeout Error while commenting on job: " + job.Get_Name())
+        return False
         # TODO: discord notification on timeout
 
     if not response.ok:
