@@ -106,11 +106,15 @@ def get_new_print_jobs():
         parsed_issue = json.loads(issue.text)
         job_id = parsed_issue['id']
         if int(job_id) in existing_ids:
-            print('')
             continue
         job_name = parsed_issue['key']
-        user_id = parsed_issue['fields']['reporter']['name']
-        user_name = parsed_issue['fields']['reporter']['displayName']
+
+        user_id = parsed_issue['fields']['customfield_11202'] # Normal users will use this format
+        if (not user_id): # Jira users will use this format
+            user_id = parsed_issue['fields']['reporter']['name'] # Normal users will use this format
+        user_name = parsed_issue['fields']['customfield_11201']
+        if (not user_name): # Jira users will use this format
+            user_name = parsed_issue['fields']['reporter']['displayName']
         user = User.Get_Or_Create(user_id, user_name)
         permission_code_id = parse_permission_code(parsed_issue['fields']['description'])
         gcode_url, url_type = parse_gcode_url(parsed_issue)

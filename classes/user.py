@@ -55,3 +55,9 @@ class User(db.Entity):
         user.user_id = form_data['user_id']
         user.white_listed = form_data['white_listed'] == 'true'
         user.black_listed = form_data['black_listed'] == 'true'
+        
+    def Get_Name(self):
+        splitName = self.name.split()
+        if(len(splitName) == 1):
+            return splitName[0]
+        return splitName[0][0] + ", " + splitName[1]

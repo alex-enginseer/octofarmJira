@@ -2,6 +2,7 @@ import yaml
 import jira
 from classes.printerModel import *
 import os
+from fpdf import FPDF 
 from datetime import datetime
 
 # importing configs
@@ -97,7 +98,7 @@ def start_print_job(job, printer, comment_on_ticket=True):
         job.print_started_date = datetime.now()
         commit()
         if config["receipt_printer"]["print_physical_receipt"] is True:
-            receiptPrinter(job.Get_Name(job_name_only=True), printer.name)
+            printReceipt(job)
         if comment_on_ticket:
             jira.send_print_started(job)
         print(job.Get_Name() + " started on " + printer.name + ".")
@@ -106,42 +107,43 @@ def start_print_job(job, printer, comment_on_ticket=True):
         print("Error uploading " + job.Get_Name() + " to " + printer.name + '. Status code: ' + str(upload_result.status_code))
         return False
 
+def printReceipt(job):
+    jobName = job.Get_Name(True)
+    userName = job.user.Get_Name();
+    printerName = job.printed_on.name if job.printed_on else ""
+    
+    pdf = FPDF('P', 'mm', (80, 42))
+    pdf.set_margins(left = 0, right = 0, top = 0)
+    pdf.set_auto_page_break(False)
+    pdf.add_page()
 
-def receiptPrinter(scrapedPRNumber, printer=''):
-    """
-    probably shouldn't be in the octoprint file but this gets the receipt printer stuff
-    """
-    from PIL import Image, ImageDraw, ImageFont, ImageOps
-    from escpos.printer import Usb
+    pdf.set_font("Courier", 'B', size = 30)
+    pdf.set_xy(15, 0)
+    pdf.cell(50, 10, txt = jobName, ln = 2, align = 'L', border = 0)
+    fontSize = 20
 
-    try:
-        # try to reconnect to printer
-        p = Usb(0x0416, 0x5011, in_ep=0x81, out_ep=0x03)
-    except:
-        alreadyConnected = True
-    try:
-        # try to center printing alignment
-        p.set(align='center')
-    except:
-        alreadyAligned = True
-    # create new image large enough to fit super long names
-    img = Image.new('RGB', (2400, 400), color=(0, 0, 0))
-    fnt = ImageFont.truetype(r"resources/arialbd.ttf", 80, encoding="unic")
-    tiny = ImageFont.truetype(r"resources/arial.ttf", 40, encoding="unic")
-    d = ImageDraw.Draw(img)
-    d.text((32, 0), scrapedPRNumber, font=fnt, fill=(255, 255, 255))
-    d.text((34, 100), printer, font=tiny, fill=(255, 255, 255))
+    if (len(userName) <= 12):
+        fontSize = 18
+    elif (len(userName) <= 14):
+        fontSize = 16
+    elif (len(userName) <= 16):
+        fontSize = 14
+    elif (len(userName) <= 18):
+        fontSize = 12
+    elif (len(userName) <= 20):
+        fontSize = 10
+    elif(len(userName) > 20):
+        fontSize = 10
+        userName = userName[0:20]
 
-    imageBox = img.getbbox()
-    cropped = img.crop(imageBox)
-    inverted = ImageOps.invert(cropped)
-    # rotated = inverted.rotate(270, expand=True)
+    pdf.set_font("Courier", '', size = fontSize)
+    pdf.set_xy(15, 10)
+    pdf.cell(50, 10, txt = userName, ln = 2, align = 'L', border = 0)
 
-    try:
-        # print image
-        p.image(inverted)
-        # p.image(rotated)
-        # cut point
-        p.text("\n\n-                              -\n\n")
-    except:
-        print("The receipt printer is unplugged or not powered on, please double check physical connections.")
+    pdf.set_font("Courier", '', size = 8)
+    pdf.set_xy(15, 20)
+    pdf.cell(50, 10, txt = printerName, ln = 2, align = 'L', border = 0)
+
+    pdf.output("Receipt_File.pdf") 
+
+    os.startfile("Receipt_File.pdf", "print")

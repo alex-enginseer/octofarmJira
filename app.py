@@ -175,8 +175,7 @@ def get_jobs():
 def print_receipt(job_id):
     try:
         job = PrintJob.get(job_id=job_id)
-        printer_name = job.printed_on if job.printed_on else ''
-        octoprint.receiptPrinter(job.Get_Name(job_name_only=True), printer_name)
+        octoprint.printReceipt(job)
         return {'status': 'success'}
     except:
         return {'status': 'failed'}
