@@ -160,7 +160,8 @@ def send_fail_message(job, message_text):
     """
     commentStatus(job, message_text)
     changeStatus(job, JiraTransitionCodes.START_PROGRESS)
-    changeStatus(job, JiraTransitionCodes.STOP_PROGRESS)
+    changeStatus(job, JiraTransitionCodes.READY_FOR_REVIEW)
+    changeStatus(job, JiraTransitionCodes.REJECT)
 
 
 def send_print_started(job):
@@ -177,9 +178,11 @@ def send_print_queued(job):
 def send_print_cancelled(job):
     if job.print_status == PrintStatus.NEW.name:
         changeStatus(job, JiraTransitionCodes.START_PROGRESS)
-        changeStatus(job, JiraTransitionCodes.STOP_PROGRESS)
+        changeStatus(job, JiraTransitionCodes.READY_FOR_REVIEW)
+        changeStatus(job, JiraTransitionCodes.REJECT)
     if job.print_status == PrintStatus.IN_QUEUE.name or job.print_status == PrintStatus.PRINTING.name:
-        changeStatus(job, JiraTransitionCodes.STOP_PROGRESS)
+        changeStatus(job, JiraTransitionCodes.READY_FOR_REVIEW)
+        changeStatus(job, JiraTransitionCodes.REJECT)
 
     message = Message.get(name=MessageNames.PRINT_CANCELLED.name)
     commentStatus(job, message.text, False)
