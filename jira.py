@@ -201,10 +201,11 @@ def send_reopen_job(job):
     commentStatus(job, message.text, False)
 
 
-def send_print_finished(job):
+def send_print_finished(job, comment=True):
     changeStatus(job, JiraTransitionCodes.READY_FOR_REVIEW)
     changeStatus(job, JiraTransitionCodes.APPROVE)
-    commentStatus(job, job.Generate_Finish_Message())
+    if (comment)
+        commentStatus(job, job.Generate_Finish_Message())
 
 
 def changeStatus(job, transitionCode):
