@@ -63,16 +63,7 @@ def check_for_finished_jobs():
         if state == 'finished':
             job = printer.Get_Current_Job()
             if job:
-                grams = round(actual_print_volume * printer.material_density, 2)
-                job.weight = round(grams, 2)
-                if job.permission_code:
-                    job.cost = round(grams * 0.05, 2)
-                else:
-                    job.cost = round(grams * 0.05 * 1.0775, 2)
-                job.print_status = PrintStatus.FINISHED.name
-                job.print_finished_date = datetime.now()
-                job.payment_status = PaymentStatus.NEEDS_PAYMENT_LINK.name
-                commit()
+                job.Mark_Job_Finished()
                 jira.send_print_finished(job)
                 print(job.Get_Name() + " finished on " + printer.name + ".")
                 finished_count += 1

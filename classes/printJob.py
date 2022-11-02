@@ -1,7 +1,6 @@
 from classes.message import *
 import datetime
 
-
 class PrintJob(db.Entity):
     printer_model = Optional('PrinterModel')
     printed_on = Optional(Printer)
@@ -107,6 +106,18 @@ class PrintJob(db.Entity):
         text += "Estimated print time: " + str(datetime.timedelta(seconds=self.print_time)) + "\n"
         text += "Estimated print cost: " + "${:,.2f}".format(self.cost)
         return text
+
+    @db_session
+    def Mark_Job_Finished(self, actual_print_volume = None):
+        if (actual_print_volume):
+            self.weight = round(self.printed_on.material_density * actual_print_volume, 2)
+        if (self.permission_code):
+            self.cost = round(self.weight * 0.05, 2)
+        else:
+            self.cost = round(self.weight * 0.05 * 1.0775, 2)
+        self.print_status = PrintStatus.FINISHED.name
+        self.print_finished_date = datetime.datetime.now()
+        self.payment_status = PaymentStatus.NEEDS_PAYMENT_LINK.name
 
     @db_session
     def Generate_Finish_Message(self):

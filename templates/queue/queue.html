@@ -68,6 +68,30 @@
                 }
             },
             {
+                label:"Finish Print",
+                action:function(e, row){
+                    $.post("/printQueue/markFinished/false/" + row._row.data.job_id, (res) => {
+                        if (res.status == 'success')
+                            alert("Print has been finished")
+                        else if (res.status == 'failed')
+                            alert('Action failed! Reason: ' + res.reason)
+                        loadQueue()
+                    })
+                }
+            },
+            {
+                label:"Finish Print and Comment",
+                action:function(e, row){
+                    $.post("/printQueue/markFinished/true/" + row._row.data.job_id, (res) => {
+                        if (res.status == 'success')
+                            alert("Print has been finished and commented!")
+                        else if (res.status == 'failed')
+                            alert('Action failed! Reason: ' + res.reason)
+                        loadQueue()
+                    })
+                }
+            },
+            {
                 label: "Cancel Print",
                 action: function (e, row) {
                     $.post("/printQueue/cancelPrint/" + row._row.data.job_id, (res) => {
@@ -76,6 +100,15 @@
                         else if (res.status == 'failed')
                             alert('Action failed! Reason: ' + res.reason)
                         loadQueue()
+                    })
+                }
+            },
+            {
+                label: "Print Receipt",
+                action: function (e, row) {
+                    $.get("/printJobs/printReceipt/" + row._row.data.job_id, (res) => {
+                        if (res.status == 'failed')
+                            alert('Action failed! Reason: ' + res.reason)
                     })
                 }
             },
