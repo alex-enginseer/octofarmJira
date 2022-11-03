@@ -139,9 +139,7 @@ def mark_finished(comment=None, job_id=None):
             os.remove(job.Get_File_Name())
             
         sendComment = comment == 'true'
-        result = jira.send_print_finished(job, sendComment)
-        if not result:
-            return {'status': 'failed', 'reason': 'comment_failed'}
+        jira.send_print_finished(job, sendComment)
         return {'status': 'success'}
     except Exception as e:
         return {'status': 'failed', 'reason': repr(e)}
