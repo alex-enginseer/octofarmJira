@@ -102,6 +102,7 @@ def start_print(comment=None, job_id=None):
             result = jira.send_print_started(job)
             if not result:
                 return {'status': 'failed', 'reason': 'comment_failed'}
+        octoprint.printReceipt(job)
         return {'status': 'success'}
     except Exception as e:
         return {'status': 'failed', 'reason': repr(e)}
