@@ -135,6 +135,7 @@ def printReceipt(job):
     pdf.set_xy(15, 20)
     pdf.cell(50, 10, txt = printerName, ln = 2, align = 'L', border = 0)
 
-    pdf.output("Receipt_File.pdf") 
+    fileName = os.getcwd() + "/receipts/" + job.Get_Name(True) + "_receipt.pdf"
+    pdf.output(fileName)
 
-    os.startfile("Receipt_File.pdf", "print")
+    os.startfile(fileName, "print")
