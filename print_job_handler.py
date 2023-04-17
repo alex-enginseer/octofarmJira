@@ -20,6 +20,7 @@ def process_new_jobs():
     print("Checking DB for new jobs...")
     new_jobs = PrintJob.Get_All_By_Status(PrintStatus.NEW)
     print(str(len(new_jobs)) + " new jobs found.")
+    print(new_jobs)
 
     for job in new_jobs:
         if not job.gcode_url:  # If there is no gcode_url, no files were attached.
@@ -201,6 +202,7 @@ def check_gcode(file):
     """
     Check if gcode fits the requirements that we have set in the config
     """
+    
     parsedGcode = parse_gcode(file)
     weight = 0
     estimated_time = ''

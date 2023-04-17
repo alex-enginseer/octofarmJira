@@ -109,7 +109,7 @@ def printReceipt(job):
     pdf.add_page()
 
     pdf.set_font("Courier", 'B', size = 30)
-    pdf.set_xy(15, 0)
+    pdf.set_xy(10, 0)
     pdf.cell(50, 10, txt = jobName, ln = 2, align = 'L', border = 0)
     fontSize = 20
 
@@ -128,11 +128,11 @@ def printReceipt(job):
         userName = userName[0:20]
 
     pdf.set_font("Courier", '', size = fontSize)
-    pdf.set_xy(15, 10)
+    pdf.set_xy(10, 10)
     pdf.cell(50, 10, txt = userName, ln = 2, align = 'L', border = 0)
 
     pdf.set_font("Courier", '', size = 8)
-    pdf.set_xy(15, 20)
+    pdf.set_xy(10, 20)
     pdf.cell(50, 10, txt = printerName, ln = 2, align = 'L', border = 0)
 
     fileName = os.getcwd() + "/receipts/" + job.Get_Name(True) + "_receipt.pdf"

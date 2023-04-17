@@ -82,7 +82,20 @@ class PrintJob(db.Entity):
         if serialize:
             return PrintJob.Serialize_Jobs_For_Job_List(print_jobs)
         return print_jobs
-
+        
+    @staticmethod
+    @db_session
+    def Get_All_Print_Jobs_Screen(job_count):
+        query_result = select(pj for pj in PrintJob)
+        print_jobs = []
+        for p in query_result:
+            print_jobs.append(p)
+        print_jobs.sort(key=lambda x: x.id, reverse=True)
+        if (job_count > len(print_jobs) - 1):
+            job_count = len(print_jobs) - 1
+        
+        return PrintJob.Serialize_Jobs_For_Job_List(print_jobs[0:job_count])
+        
     @staticmethod
     def Serialize_Jobs_For_Queue(jobs):
         result = []

@@ -148,6 +148,7 @@ def download(job):
         return "ERROR"
 
     if response.ok:
+        print(job.Get_Name() + " This is the ticket I download")
         return response.text
     else:
         print("Ticket " + job.Get_Name() + ": " + str(response.status_code) + " while downloading gcode from jira.")
