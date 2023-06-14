@@ -15,7 +15,7 @@ def drop_and_create_db():
 
     with db_session:
         kw1 = Keyword(name='PrusaMK3S', description='Key to check for prusa model printers.', value='MLIB_PRUSAMK3S')
-        kw2 = Keyword(name='Config Version 1', description='Version 1 created on: DATE', value='MLIB_BUNDLE_V1')
+        kw2 = Keyword(name='Config Version 1', description='Version 1 created on: DATE', value='MLIB_BUNDLE_V2.4')
         kw3 = Keyword(name='Gigabot', description='Key to check for prusa model printers.', value='MLIB_GIGABOT')
 
         commit()
