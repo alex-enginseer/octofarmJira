@@ -92,7 +92,7 @@ class PrintJob(db.Entity):
             print_jobs.append(p)
         print_jobs.sort(key=lambda x: x.id, reverse=True)
         if (job_count > len(print_jobs) - 1):
-            job_count = len(print_jobs) - 1
+            job_count = len(print_jobs)
         
         return PrintJob.Serialize_Jobs_For_Job_List(print_jobs[0:job_count])
         
