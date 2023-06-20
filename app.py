@@ -279,6 +279,12 @@ def edit_printer_post(printer_id):
         return {'status': 'failed'}
 
 
+@app.route('/printers/connectPrinter/<printer_id>', methods=['POST'])
+def connect_printer(printer_id):
+    printer = Printer.get(id=printer_id)
+    printer.Connect_Printer()
+
+
 @app.route('/users')
 def users():
     all_users = User.Get_All()
