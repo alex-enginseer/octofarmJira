@@ -21,6 +21,10 @@
                 <input class="form-control" type="text" id="description">
             </div>
             <div class="mb-3">
+                <label class="form-label" for="contact_info">Contact Info</label>
+                <input class="form-control" type="text" id="contact_info">
+            </div>
+            <div class="mb-3">
                 <label class="form-label" for="start_date">Start Date (First day code is valid)</label>
                 <input class="form-control" type="date" id="start_date">
             </div>
@@ -37,6 +41,7 @@
             formData.name = $("#name").val()
             formData.code = $("#code").val()
             formData.description = $("#description").val()
+            formData.contact_info = $("#contact_info").val()
             formData.start_date = $("#start_date").val()
             formData.end_date = $("#end_date").val()
 

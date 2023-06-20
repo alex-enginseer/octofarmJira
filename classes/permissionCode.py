@@ -10,6 +10,8 @@ class PermissionCode(db.Entity):
     """Friendly name of the code."""
     description = Optional(str)
     """Optional description."""
+    contact_info = Optional(str)
+    """Optional contact info."""
     start_date = Optional(datetime.date)
     """Date the key beings being valid."""
     end_date = Optional(datetime.date)
@@ -45,6 +47,7 @@ class PermissionCode(db.Entity):
         code.name = form_data['name']
         code.code = form_data['code']
         code.description = form_data['description']
+        code.contact_info = form_data['contact_info']
         try:
             code.start_date = datetime.datetime.fromisoformat(form_data['start_date'])
         except:
@@ -66,6 +69,7 @@ class PermissionCode(db.Entity):
         name = form_data['name']
         code = form_data['code']
         description = form_data['description']
+        contact_info = form_data['contact_info']
         try:
             start_date = datetime.datetime.fromisoformat(form_data['start_date'])
         except:
@@ -78,7 +82,7 @@ class PermissionCode(db.Entity):
         if start_date and end_date and start_date > end_date:
             raise Exception
 
-        PermissionCode(name=name, code=code, description=description, start_date=start_date, end_date=end_date)
+        PermissionCode(name=name, code=code, description=description, contact_info=contact_info, start_date=start_date, end_date=end_date)
 
     @staticmethod
     @db_session
