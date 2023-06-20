@@ -3,7 +3,8 @@ from reportlab.lib.pagesizes import letter
 from classes.class_imports import *
 from pony.flask import Pony
 
-WIDTH, HEIGHT = letter
+WIDTH = letter[0]
+HEIGHT = letter[1]
 JOB_QTY_INDENT = 10
 JOB_DESCRIPTION_INDENT = 40
 JOB_UNIT_PRICE_INDENT = 300
@@ -20,6 +21,7 @@ def write_header(c):
     c.drawString(0, 782, "Header")
 
 
+# Formats all the data from the print job into correct slots for the invoice
 def write_jobs(c, print_jobs):
     vertical_cursor = JOB_VERTICAL_START
     for pj in print_jobs:
@@ -31,28 +33,24 @@ def write_jobs(c, print_jobs):
         vertical_cursor -= JOB_SPACING
 
 
-def get_jobs(permission_code_id):
-    print_jobs = []
-    with db_session:
-        query_result = PrintJob.select(permission_code=8)
-        for p in query_result:
-            print_jobs.append(p)
-    return print_jobs
-
-
+# Creates our canvas and draws the invoice onto our .pdf from a .png version of the invoice
 def canvas_setup():
     c = canvas.Canvas("hello.pdf", pagesize=letter)
-    # width, height = letter
     return c
 
 
-def create_invoice(permission_code_id):
-    print_jobs = get_jobs(permission_code_id)
-    c = canvas_setup()
-    write_header(c)
-    write_jobs(c, print_jobs)
+def finalize_report(c):
     c.showPage()
     c.save()
+
+
+# Entry function for invoice generator. The only function that should be accessed outside of this file
+def create_invoice(permission_code_id):
+    c = canvas_setup()
+    write_header(c)
+    print_jobs = PrintJob.Get_Jobs_For_Permission_Code(permission_code_id)
+    write_jobs(c, print_jobs)
+    finalize_report(c)
 
 
 create_invoice(8)
