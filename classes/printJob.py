@@ -73,6 +73,16 @@ class PrintJob(db.Entity):
 
     @staticmethod
     @db_session
+    def Get_Jobs_For_Permission_Code(permission_code):
+        print_jobs = []
+        with db_session:
+            query_result = PrintJob.select(permission_code=permission_code)
+            for p in query_result:
+                print_jobs.append(p)
+        return print_jobs
+
+    @staticmethod
+    @db_session
     def Get_All(serialize=False):
         query_result = select(pj for pj in PrintJob)
         print_jobs = []
