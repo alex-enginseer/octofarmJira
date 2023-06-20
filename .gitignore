@@ -140,3 +140,5 @@ octofarmJira_database.sqlite
 config_files/DEV_config.yml
 Receipt_File.pdf
 printTesting.py
+
+*.pdf
