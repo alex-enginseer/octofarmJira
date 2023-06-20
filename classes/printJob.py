@@ -76,7 +76,7 @@ class PrintJob(db.Entity):
     def Get_Jobs_For_Permission_Code(permission_code):
         print_jobs = []
         with db_session:
-            query_result = PrintJob.select(permission_code=permission_code)
+            query_result = select(pj for pj in PrintJob if pj.print_status == PrintStatus.FINISHED.name and pj.permission_code.id == permission_code and pj.payment_link_generated_date is None)
             for p in query_result:
                 print_jobs.append(p)
         return print_jobs
