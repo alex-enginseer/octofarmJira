@@ -46,7 +46,9 @@ def first_page(canvas, doc):
     # invoice number and date
     canvas.setFont('Times-Roman', 11)
     canvas.drawString(WIDTH - 3.1 * inch, HEIGHT - TOP_MARGIN - .5 * inch, "Invoice Number:")
-    canvas.drawString(WIDTH - 1.9 * inch, HEIGHT - TOP_MARGIN - .5 * inch, str(date.today()))
+    today = date.today()
+    invoice_number = str(today.month) + str(today.day) + str(today.year) + str(doc.Code_Id)
+    canvas.drawString(WIDTH - 1.9 * inch, HEIGHT - TOP_MARGIN - .5 * inch, invoice_number)
     canvas.drawString(WIDTH - 2.4 * inch, HEIGHT - TOP_MARGIN - .7 * inch, "Date:")
     canvas.drawString(WIDTH - 1.9 * inch, HEIGHT - TOP_MARGIN - .7 * inch, str(date.today()))
     canvas.line(WIDTH - 2.05 * inch,
@@ -80,6 +82,7 @@ def generate_invoice(permission_code_id):
     doc_name = permission_code.name + "_" + str(date.today()) + "_" + "Invoice.pdf"
     doc = SimpleDocTemplate(doc_name, pagesize=letter)
     doc.To = permission_code.contact_info
+    doc.Code_Id = permission_code_id
 
     Story = [Spacer(1, 1.5 * inch)]
     LIST_STYLE = TableStyle(
