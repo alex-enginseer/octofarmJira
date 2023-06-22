@@ -31,6 +31,11 @@ class PermissionCode(db.Entity):
 
     @staticmethod
     @db_session
+    def Get_By_Id(permission_code_id):
+        return PermissionCode.get(id=permission_code_id)
+
+    @staticmethod
+    @db_session
     def Get_All_Active():
         now = datetime.date.today()
         query_result = select(c for c in PermissionCode if (c.start_date is None or c.start_date <= now) and (c.end_date is None or now <= c.end_date))
