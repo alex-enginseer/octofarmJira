@@ -37,7 +37,7 @@
                     <td><button id="enable{{printer.id }}" type="button" onclick="toggleEnabled({{ printer.id }})" class="btn btn-outline-primary">{{ printer.enabled }}</button></td>
                     <td><button id="edit{{printer.id }}" type="button" onclick="editPrinter({{ printer.id }})" class="btn btn-outline-primary">Edit</button></td>
                     <td><button id="delete{{printer.id }}" type="button" onclick="deletePrinter({{ printer.id }})" class="btn btn-outline-danger">Delete</button></td>
-                    <td><button id="connect{{printer.id }}" type="button" onclick="connectPrinter({{ printer.id }})" class="btn btn-outline-danger">Max Don't Touch This (Really)</button></td>
+                    <td><button id="connect{{printer.id }}" type="button" onclick="connectPrinter({{ printer.id }})" class="btn btn-outline-danger">Connect</button></td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -79,8 +79,11 @@
     }
     const connectPrinter = function(printer_id) {
         $.post("/printers/connectPrinter/" + printer_id, (data) => {
-            if (data.status == "success") {
-            }
+                if (data.status == "success") {
+                    alert("Connect command sent successfully. Check printer for status.")
+                } else if (data.status == "failed") {
+                    alert("Connecting printer failed!")
+                }
         });
     }
     </script>
