@@ -97,18 +97,17 @@ def generate_invoice(permission_code_id):
     data = [["QTY", "Description", "Unit Price", "Line Total"]]
     # sets up the columns and rows for the table
     total = 0
-    for i in range(27):
-        for pj in print_jobs:
-            # setup for each row
-            row = []
-            qty = 1
-            row.append(qty)
-            row.append(pj.job_name)
-            row.append("${:,.2f}".format(pj.cost))
-            row.append("${:,.2f}".format(pj.cost * qty))
-            total += pj.cost * qty
-            # add the row to the table
-            data.append(row)
+    for pj in print_jobs:
+        # setup for each row
+        row = []
+        qty = 1
+        row.append(qty)
+        row.append(pj.job_name)
+        row.append("${:,.2f}".format(pj.cost))
+        row.append("${:,.2f}".format(pj.cost * qty))
+        total += pj.cost * qty
+        # add the row to the table
+        data.append(row)
 
     currency_string = "${:,.2f}".format(total)
 
