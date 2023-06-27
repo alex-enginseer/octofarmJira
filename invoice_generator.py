@@ -1,7 +1,7 @@
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from classes.class_imports import *
-from datetime import date
+from datetime import date, timedelta
 
 from reportlab.platypus import SimpleDocTemplate, Spacer, Table, TableStyle
 from reportlab.lib.units import inch
@@ -75,16 +75,33 @@ def other_pages(canvas, doc):
     canvas.restoreState()
 
 
-def generate_invoice(permission_code_id):
+def generate_contact_table():
+    LIST_STYLE = TableStyle(
+        [
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('GRID', (0, 0), (-1, -1), .5, colors.lightgrey),
+            ('ALIGNMENT', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+        ]
+    )
+    data = [["Contact", "Title", "Payment Terms", "Due Date"],
+            ["Erika Church", "Design & Technology\n Coordinator", "01-00790-2000-28768--40585",
+             str(date.today() + timedelta(days=10))]]
+    table = Table(data,
+                  colWidths=[2 * inch, 2 * inch, 2 * inch, 2 * inch],
+                  rowHeights=None,
+                  style=LIST_STYLE,
+                  splitByRow=1,
+                  repeatRows=1,
+                  repeatCols=0,
+                  rowSplitRange=None,
+                  spaceBefore=None,
+                  spaceAfter=None,
+                  cornerRadii=None)
+    return table
 
-    print_jobs = PrintJob.Get_Jobs_For_Permission_Code(permission_code_id)
-    permission_code = PermissionCode.Get_By_Id(permission_code_id)
-    doc_name = permission_code.name + "_" + str(date.today()) + "_" + "Invoice.pdf"
-    doc = SimpleDocTemplate(doc_name, pagesize=letter)
-    doc.To = permission_code.contact_info
-    doc.Code_Id = permission_code_id
 
-    Story = [Spacer(1, 1.5 * inch)]
+def generate_job_table(print_jobs):
     LIST_STYLE = TableStyle(
         [
             ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
@@ -96,7 +113,6 @@ def generate_invoice(permission_code_id):
             ('NOSPLIT', (0, -3), (-1, -1))
         ]
     )
-
     data = [["QTY", "Description", "Unit Price", "Line Total"]]
     # sets up the columns and rows for the table
     total = 0
@@ -129,9 +145,26 @@ def generate_invoice(permission_code_id):
                   spaceBefore=None,
                   spaceAfter=None,
                   cornerRadii=None)
-    Story.append(table)
+    return table
+
+
+def generate_invoice(permission_code_id):
+    print_jobs = PrintJob.Get_Jobs_For_Permission_Code(permission_code_id)
+    permission_code = PermissionCode.Get_By_Id(permission_code_id)
+    doc_name = permission_code.name + "_" + str(date.today()) + "_" + "Invoice.pdf"
+    doc = SimpleDocTemplate(doc_name, pagesize=letter)
+    doc.To = permission_code.contact_info
+    doc.Code_Id = permission_code_id
+
+    Story = [Spacer(1, 1.5 * inch)]
+
+    contact_table = generate_contact_table()
+    Story.append(contact_table)
+
+    Story.append(Spacer(1, 0.5 * inch))
+
+    job_table = generate_job_table(print_jobs)
+    Story.append(job_table)
 
     doc.build(Story, onFirstPage=first_page, onLaterPages=other_pages)
 
-
-generate_invoice(8)
