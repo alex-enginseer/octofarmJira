@@ -78,6 +78,8 @@ class PaymentStatus(Enum):
     WAITING_FOR_PAYMENT = auto()
     """Payment link has been generated but not paid."""
     PAID = auto()
+    """Invoice has been generated for this tax exempt job"""
+    INVOICED = auto()
 
 
 class UrlTypes(Enum):

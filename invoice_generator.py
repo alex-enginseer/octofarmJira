@@ -144,8 +144,13 @@ def generate_job_table(print_jobs):
     return table
 
 
+def mark_jobs_invoiced(print_jobs):
+    for pj in print_jobs:
+        pj.Mark_Job_Invoiced()
+
+
 def generate_invoice(permission_code_id):
-    print_jobs = PrintJob.Get_Jobs_For_Permission_Code(permission_code_id)
+    print_jobs = PrintJob.Get_Jobs_For_Permission_Code_Not_Invoiced(permission_code_id)
     permission_code = PermissionCode.Get_By_Id(permission_code_id)
     doc_name = permission_code.name + "_" + str(date.today()) + "_" + "Invoice.pdf"
     doc = SimpleDocTemplate(doc_name, pagesize=letter)
@@ -163,5 +168,7 @@ def generate_invoice(permission_code_id):
     Story.append(job_table)
 
     doc.build(Story, onFirstPage=first_page, onLaterPages=other_pages)
+
+    mark_jobs_invoiced(print_jobs)
 
     return doc_name

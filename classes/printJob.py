@@ -76,7 +76,17 @@ class PrintJob(db.Entity):
     def Get_Jobs_For_Permission_Code(permission_code):
         print_jobs = []
         with db_session:
-            query_result = select(pj for pj in PrintJob if pj.print_status == PrintStatus.FINISHED.name and pj.permission_code.id == permission_code and pj.payment_link_generated_date is None)
+            query_result = select(pj for pj in PrintJob if pj.print_status == PrintStatus.FINISHED.name and pj.permission_code.id == permission_code)
+            for p in query_result:
+                print_jobs.append(p)
+        return print_jobs
+
+    @staticmethod
+    @db_session
+    def Get_Jobs_For_Permission_Code_Not_Invoiced(permission_code):
+        print_jobs = []
+        with db_session:
+            query_result = select(pj for pj in PrintJob if pj.print_status == PrintStatus.FINISHED.name and pj.permission_code.id == permission_code and pj.payment_status is not PaymentStatus.INVOICED.name)
             for p in query_result:
                 print_jobs.append(p)
         return print_jobs
@@ -141,6 +151,11 @@ class PrintJob(db.Entity):
         self.print_status = PrintStatus.FINISHED.name
         self.print_finished_date = datetime.datetime.now()
         self.payment_status = PaymentStatus.NEEDS_PAYMENT_LINK.name
+
+    @db_session
+    def Mark_Job_Invoiced(self):
+        self.payment_link_generated_date = datetime.datetime.now()
+        self.payment_status = PaymentStatus.INVOICED.name
 
     @db_session
     def Generate_Finish_Message(self):
