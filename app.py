@@ -393,6 +393,11 @@ def edit_permission_code_post(code_id):
         return {'status': 'failed'}
 
 
+@app.route('/permissionCodes/getInvoice/<code_id>', methods=['GET'])
+def get_invoice_for_permission_code(code_id):
+    permissionCode = PermissionCode[code_id]
+    return flask.send_from_directory(DOWNLOAD_FOLDER, filename, as_attachment=True)
+
 @app.route('/messages')
 def messages():
     all_messages = Message.Get_All()
