@@ -29,6 +29,7 @@
                     <td>{{ code.start_date }}</td>
                     <td>{{ code.end_date }}</td>
                     {% if code.id != 1 %}
+                        <td><button id="invoice{{code.id }}" type="button" onclick="invoicePermissionCode({{ code.id }})" class="btn btn-outline-primary">Invoice</button></td>
                         <td><button id="edit{{code.id }}" type="button" onclick="editPermissionCode({{ code.id }})" class="btn btn-outline-primary">Edit</button></td>
                         <td><button id="delete{{code.id }}" type="button" onclick="deletePermissionCode({{ code.id }})" class="btn btn-outline-danger">Delete</button></td>
                     {% else %}
@@ -55,6 +56,12 @@
     }
     const editPermissionCode = function(code_id) {
         window.location.href = "/permissionCodes/editPermissionCode/" + code_id
+    }
+    const invoicePermissionCode = function(code_id) {
+        const anchor = document.createElement("a");
+        anchor.href = "/permissionCodes/getInvoice/" + code_id
+        document.body.appendChild(anchor);
+        anchor.click();
     }
     </script>
 {% endblock %}

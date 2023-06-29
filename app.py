@@ -3,6 +3,7 @@ import os
 import flask
 import jira
 import print_job_handler
+import invoice_generator
 from classes.permissionCode import *
 from classes.gcodeCheckItem import *
 from pony.flask import Pony
@@ -33,7 +34,8 @@ HISTORY = "./config_files/history.yml"
 
 set_sql_debug(False)  # Shows the SQL queries pony is running in the console.
 db.bind(provider='sqlite', filename='octofarmJira_database.sqlite', create_db=True)  # Establish DB connection.
-db.generate_mapping(create_tables=True)  # Have to generate mapping to use Pony. Will create tables that do not already exist.
+db.generate_mapping(
+    create_tables=True)  # Have to generate mapping to use Pony. Will create tables that do not already exist.
 
 Pony(app)  # Connects routes to the DB as needed without having to do it manually.
 
@@ -127,6 +129,7 @@ def cancel_print(job_id=None):
     except Exception as e:
         return {'status': 'failed', 'reason': repr(e)}
 
+
 @app.route('/printQueue/markFinished/<comment>/<job_id>', methods=['POST'])
 def mark_finished(comment=None, job_id=None):
     try:
@@ -138,7 +141,7 @@ def mark_finished(comment=None, job_id=None):
 
         if os.path.exists(job.Get_File_Name()):
             os.remove(job.Get_File_Name())
-            
+
         sendComment = comment == 'true'
         jira.send_print_finished(job, sendComment)
         return {'status': 'success'}
@@ -157,7 +160,8 @@ def download_gcode(job_id=None):
             return flask.send_file(job.Get_File_Name(), as_attachment=True)
 
         gcode = print_job_handler.download_gcode(job)
-        checked_gcode, check_result, weight, estimated_time, printer_model, fail_message = print_job_handler.check_gcode(gcode)
+        checked_gcode, check_result, weight, estimated_time, printer_model, fail_message = print_job_handler.check_gcode(
+            gcode)
         if check_result == GcodeStates.VALID:
             generator = (cell for row in checked_gcode
                          for cell in row)
@@ -219,7 +223,8 @@ def queue_print(job_id):
 @app.route('/printers')
 def printers():
     all_printers = Printer.Get_All()
-    return flask.render_template('printers/printers.html', printers=all_printers, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('printers/printers.html', printers=all_printers, async_mode=socketio.async_mode,
+                                 ip=flask.request.host)
 
 
 @app.route('/printers/deletePrinter/<printer_id>', methods=['POST'])
@@ -246,7 +251,8 @@ def toggle_printer_status(printer_id):
 @app.route('/printers/createPrinter', methods=['GET'])
 def create_printer_get():
     printer_models = PrinterModel.Get_All()
-    return flask.render_template('printers/create_printer.html', models=printer_models, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('printers/create_printer.html', models=printer_models, async_mode=socketio.async_mode,
+                                 ip=flask.request.host)
 
 
 @app.route('/printers/createPrinter', methods=['POST'])
@@ -264,7 +270,8 @@ def create_printer_post():
 def edit_printer_get(printer_id):
     printer = Printer[printer_id]
     printer_models = PrinterModel.Get_All()
-    return flask.render_template('printers/edit_printer.html', printer=printer, models=printer_models, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('printers/edit_printer.html', printer=printer, models=printer_models,
+                                 async_mode=socketio.async_mode, ip=flask.request.host)
 
 
 @app.route('/printers/editPrinter/<printer_id>', methods=['POST'])
@@ -283,10 +290,10 @@ def edit_printer_post(printer_id):
 def connect_printer(printer_id):
     try:
         printer = Printer.get(id=printer_id)
-        
+
         if (printer is None):
             return {'status': 'failed'}
-        
+
         printer.Connect_Printer()
         return {'status': 'success'}
     except:
@@ -296,7 +303,8 @@ def connect_printer(printer_id):
 @app.route('/users')
 def users():
     all_users = User.Get_All()
-    return flask.render_template('users/users.html', users=all_users, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('users/users.html', users=all_users, async_mode=socketio.async_mode,
+                                 ip=flask.request.host)
 
 
 @app.route('/users/toggleWhiteListed/<user_id>', methods=['POST'])
@@ -324,7 +332,8 @@ def toggle_black_listed_status(user_id):
 @app.route('/users/editUser/<user_id>', methods=['GET'])
 def edit_user_get(user_id):
     user = User[user_id]
-    return flask.render_template('users/edit_user.html', user=user, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('users/edit_user.html', user=user, async_mode=socketio.async_mode,
+                                 ip=flask.request.host)
 
 
 @app.route('/users/editUser/<user_id>', methods=['POST'])
@@ -342,7 +351,8 @@ def edit_user_post(user_id):
 @app.route('/permissionCodes')
 def permissionCodes():
     all_codes = PermissionCode.Get_All()
-    return flask.render_template('permissionCodes/permission_codes.html', permissionCodes=all_codes, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('permissionCodes/permission_codes.html', permissionCodes=all_codes,
+                                 async_mode=socketio.async_mode, ip=flask.request.host)
 
 
 @app.route('/permissionCodes/deletePermissionCode/<code_id>', methods=['POST'])
@@ -359,7 +369,8 @@ def delete_permission_code(code_id):
 
 @app.route('/permissionCodes/createPermissionCode', methods=['GET'])
 def create_permission_code_get():
-    return flask.render_template('permissionCodes/create_permission_code.html', async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('permissionCodes/create_permission_code.html', async_mode=socketio.async_mode,
+                                 ip=flask.request.host)
 
 
 @app.route('/permissionCodes/createPermissionCode', methods=['POST'])
@@ -376,7 +387,8 @@ def create_permission_code_post():
 @app.route('/permissionCodes/editPermissionCode/<code_id>', methods=['GET'])
 def edit_permission_code_get(code_id):
     permissionCode = PermissionCode[code_id]
-    return flask.render_template('permissionCodes/edit_permission_code.html', permissionCode=permissionCode, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('permissionCodes/edit_permission_code.html', permissionCode=permissionCode,
+                                 async_mode=socketio.async_mode, ip=flask.request.host)
 
 
 @app.route('/permissionCodes/editPermissionCode/<code_id>', methods=['POST'])
@@ -395,14 +407,16 @@ def edit_permission_code_post(code_id):
 
 @app.route('/permissionCodes/getInvoice/<code_id>', methods=['GET'])
 def get_invoice_for_permission_code(code_id):
-    permissionCode = PermissionCode[code_id]
-    return flask.send_from_directory(DOWNLOAD_FOLDER, filename, as_attachment=True)
+    filename = invoice_generator.generate_invoice(code_id)
+    return flask.send_from_directory("", filename, as_attachment=True)
+
 
 @app.route('/messages')
 def messages():
     all_messages = Message.Get_All()
     message_names = get_dict(MessageNames)
-    return flask.render_template('messages/messages.html', messages=all_messages, message_names=message_names, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('messages/messages.html', messages=all_messages, message_names=message_names,
+                                 async_mode=socketio.async_mode, ip=flask.request.host)
 
 
 @app.route('/messages/deleteMessage/<message_id>', methods=['POST'])
@@ -434,7 +448,8 @@ def create_message_post():
 @app.route('/messages/editMessage/<message_id>', methods=['GET'])
 def edit_message_get(message_id):
     message = Message[message_id]
-    return flask.render_template('messages/edit_message.html', message=message, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('messages/edit_message.html', message=message, async_mode=socketio.async_mode,
+                                 ip=flask.request.host)
 
 
 @app.route('/messages/editMessage/<message_id>', methods=['POST'])
@@ -452,7 +467,8 @@ def edit_message_post(message_id):
 @app.route('/keywords')
 def keywords():
     all_keywords = Keyword.Get_All()
-    return flask.render_template('keywords/keywords.html', keywords=all_keywords, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('keywords/keywords.html', keywords=all_keywords, async_mode=socketio.async_mode,
+                                 ip=flask.request.host)
 
 
 @app.route('/keywords/deleteKeyword/<keyword_id>', methods=['POST'])
@@ -484,7 +500,8 @@ def create_keyword_post():
 @app.route('/keywords/editKeyword/<keyword_id>', methods=['GET'])
 def edit_keyword_get(keyword_id):
     keyword = Keyword[keyword_id]
-    return flask.render_template('keywords/edit_keyword.html', keyword=keyword, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('keywords/edit_keyword.html', keyword=keyword, async_mode=socketio.async_mode,
+                                 ip=flask.request.host)
 
 
 @app.route('/keywords/editKeyword/<keyword_id>', methods=['POST'])
@@ -502,7 +519,8 @@ def edit_keyword_post(keyword_id):
 @app.route('/printerModels')
 def printer_models():
     all_models = PrinterModel.Get_All()
-    return flask.render_template('printerModels/printer_models.html', printer_models=all_models, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('printerModels/printer_models.html', printer_models=all_models,
+                                 async_mode=socketio.async_mode, ip=flask.request.host)
 
 
 @app.route('/printerModels/deletePrinterModel/<printer_model_id>', methods=['POST'])
@@ -518,7 +536,8 @@ def delete_printer_model(printer_model_id):
 @app.route('/printerModels/createPrinterModel', methods=['GET'])
 def create_printer_model_get():
     all_keywords = Keyword.Get_All()
-    return flask.render_template('printerModels/create_printer_model.html', all_keywords=all_keywords, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('printerModels/create_printer_model.html', all_keywords=all_keywords,
+                                 async_mode=socketio.async_mode, ip=flask.request.host)
 
 
 @app.route('/printerModels/createPrinterModel', methods=['POST'])
@@ -536,7 +555,8 @@ def create_printer_model_post():
 def edit_printer_model_get(printer_model_id):
     all_keywords = Keyword.Get_All()
     printer_model = PrinterModel[printer_model_id]
-    return flask.render_template('printerModels/edit_printer_model.html', printer_model=printer_model, all_keywords=all_keywords, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('printerModels/edit_printer_model.html', printer_model=printer_model,
+                                 all_keywords=all_keywords, async_mode=socketio.async_mode, ip=flask.request.host)
 
 
 @app.route('/printerModels/editPrinterModel/<printer_model_id>', methods=['POST'])
@@ -554,7 +574,8 @@ def edit_printer_model_post(printer_model_id):
 @app.route('/checkItems')
 def check_items():
     all_check_items = GcodeCheckItem.Get_All()
-    return flask.render_template('checkItems/check_items.html', check_items=all_check_items, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('checkItems/check_items.html', check_items=all_check_items,
+                                 async_mode=socketio.async_mode, ip=flask.request.host)
 
 
 @app.route('/checkItems/deleteCheckItem/<check_item_id>', methods=['POST'])
@@ -572,7 +593,8 @@ def create_check_item_get():
     printer_models = PrinterModel.Get_All()
     messages = Message.Get_All()
     check_actions = get_dict(GcodeCheckActions)
-    return flask.render_template('checkItems/create_check_item.html', printer_models=printer_models, messages=messages, check_actions=check_actions, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('checkItems/create_check_item.html', printer_models=printer_models, messages=messages,
+                                 check_actions=check_actions, async_mode=socketio.async_mode, ip=flask.request.host)
 
 
 @app.route('/checkItems/createCheckItem', methods=['POST'])
@@ -592,7 +614,9 @@ def edit_check_item_get(check_item_id):
     messages = Message.Get_All()
     check_actions = get_dict(GcodeCheckActions)
     check_item = GcodeCheckItem[check_item_id]
-    return flask.render_template('checkItems/edit_check_item.html', check_item=check_item, printer_models=printer_models, messages=messages, check_actions=check_actions, async_mode=socketio.async_mode, ip=flask.request.host)
+    return flask.render_template('checkItems/edit_check_item.html', check_item=check_item,
+                                 printer_models=printer_models, messages=messages, check_actions=check_actions,
+                                 async_mode=socketio.async_mode, ip=flask.request.host)
 
 
 @app.route('/checkItems/editCheckItem/<check_item_id>', methods=['POST'])

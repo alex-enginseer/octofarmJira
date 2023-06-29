@@ -11,10 +11,6 @@ HEIGHT = letter[1]
 LEFT_MARGIN = 0.5 * inch
 TOP_MARGIN = 0.5 * inch
 
-set_sql_debug(False)  # Shows the SQL queries pony is running in the console.
-db.bind(provider='sqlite', filename='octofarmJira_database.sqlite', create_db=True)  # Establish DB connection.
-db.generate_mapping(create_tables=True)
-
 
 def first_page(canvas, doc):
     canvas.saveState()
@@ -168,3 +164,4 @@ def generate_invoice(permission_code_id):
 
     doc.build(Story, onFirstPage=first_page, onLaterPages=other_pages)
 
+    return doc_name
