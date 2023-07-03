@@ -1,5 +1,7 @@
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
+
+import jira
 from classes.class_imports import *
 from datetime import date, timedelta
 
@@ -147,6 +149,7 @@ def generate_job_table(print_jobs):
 def mark_jobs_invoiced(print_jobs):
     for pj in print_jobs:
         pj.Mark_Job_Invoiced()
+        jira.send_print_invoiced(pj)
 
 
 def generate_invoice(permission_code_id):

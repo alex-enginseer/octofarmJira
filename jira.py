@@ -205,8 +205,13 @@ def send_reopen_job(job):
 def send_print_finished(job, comment=True):
     changeStatus(job, JiraTransitionCodes.READY_FOR_REVIEW)
     changeStatus(job, JiraTransitionCodes.APPROVE)
-    if (comment):
+    if comment:
         commentStatus(job, job.Generate_Finish_Message())
+
+
+def send_print_invoiced(job):
+    changeStatus(job, JiraTransitionCodes.DONE)
+    commentStatus(job, "INVOICED", notify_user=False)
 
 
 def changeStatus(job, transitionCode):
