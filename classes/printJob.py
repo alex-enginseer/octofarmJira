@@ -211,7 +211,7 @@ class PrintJob(db.Entity):
             'print_time': self.print_time,
             'payment_status': self.payment_status,
             'payment_link': self.payment_link,
-            'payment_link_generated_date': self.payment_link_generated_date,
+            'payment_link_generated_date': self.payment_link_generated_date.strftime("%m/%d/%Y, %H:%M:%S") if self.payment_link_generated_date else '',
             'paid_date': self.paid_date,
         }
         return result
