@@ -30,7 +30,15 @@ def start_queued_jobs():
                 # printer is a tuple: (printer, <print_count>)
                 if len(jobs) == 0:  # We are out of jobs for this printer model
                     break
-                if printer[0].Get_Printer_State() == 'operational':
+                printer_state = printer[0].Get_Printer_State()
+                if printer_state[0:7] == 'offline':
+                    print(printer[0].name + " : " + printer_state)
+                    print("Printer is offline, attempting to reconnect automatically")
+                    printer[0].Connect_Printer()
+                    time.sleep(3)
+                    printer_state = printer[0].Get_Printer_State()
+                    print(printer[0].name + " : " + printer_state)
+                if printer_state == 'operational':
                     start_print_job(jobs.pop(0), printer[0])  # Removes the job from the list for this printer model
                     jobs_started += 1
         else:
