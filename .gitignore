@@ -27,6 +27,7 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+*.tmp.driveupload*
 /reportlab/
 
 /receipts/
