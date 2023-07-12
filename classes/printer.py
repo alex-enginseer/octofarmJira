@@ -66,6 +66,14 @@ class Printer(db.Entity):
         payload = {'select': 'true', 'print': 'true'}
         header = {'X-Api-Key': self.api_key}
         return requests.post(self.Get_Upload_Url(), files=fle, data=payload, headers=header)
+    
+    def Upload_Test_Print(self):
+        openFile = open('test_print.gcode', 'rb')
+        fle = {'file': openFile, 'filename': 'test_print'}
+        payload = {'select': 'true', 'print': 'true'}
+        header = {'X-Api-Key': self.api_key}
+        return requests.post(self.Get_Upload_Url(), files=fle, data=payload, headers=header)
+
 
     def Get_Printer_State(self, get_actual_volume=False):
         """Returns a tuple with the state as the first element. The second element is the actual weight used if the"""

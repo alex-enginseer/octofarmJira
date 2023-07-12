@@ -299,6 +299,21 @@ def connect_printer(printer_id):
     except:
         return {'status': 'failed'}
 
+@app.route('/printers/testPrint/<printer_id>', methods=['POST'])
+def test_print(printer_id):
+    try:
+        printer = Printer.get(id=printer_id)
+
+        if (printer is None):
+            return {'status': 'failed'}
+
+        response = printer.Upload_Test_Print()
+        if response.ok:
+            return {'status': 'success'}
+        return {'status': 'failed'}
+    except:
+        return {'status': 'failed'}
+
 
 @app.route('/users')
 def users():

@@ -14,10 +14,9 @@
                 <th>IP</th>
                 <th>API Key</th>
                 <th>Stream IP</th>
-                <th>Material Type</th>
-                <th>Material Color</th>
                 <th>Material Density</th>
                 <th>Enabled</th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -31,13 +30,12 @@
                     <td>{{ printer.ip }}</td>
                     <td>{{ printer.api_key }}</td>
                     <td>{{ printer.stream_ip }}</td>
-                    <td>{{ printer.materrial_type }}</td>
-                    <td>{{ printer.material_color }}</td>
                     <td>{{ printer.material_density }}</td>
                     <td><button id="enable{{printer.id }}" type="button" onclick="toggleEnabled({{ printer.id }})" class="btn btn-outline-primary">{{ printer.enabled }}</button></td>
                     <td><button id="edit{{printer.id }}" type="button" onclick="editPrinter({{ printer.id }})" class="btn btn-outline-primary">Edit</button></td>
                     <td><button id="delete{{printer.id }}" type="button" onclick="deletePrinter({{ printer.id }})" class="btn btn-outline-danger">Delete</button></td>
                     <td><button id="connect{{printer.id }}" type="button" onclick="connectPrinter({{ printer.id }})" class="btn btn-outline-danger">Connect</button></td>
+                    <td><button id="testPrint{{printer.id }}" type="button" onclick="testPrint({{ printer.id }})" class="btn btn-outline-primary">Test Print</button></td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -83,6 +81,15 @@
                     alert("Connect command sent successfully. Check printer for status.")
                 } else if (data.status == "failed") {
                     alert("Connecting printer failed!")
+                }
+        });
+    }
+    const testPrint = function(printer_id) {
+        $.post("/printers/testPrint/" + printer_id, (data) => {
+                if (data.status == "success") {
+                    alert("Test print sent successfully.")
+                } else if (data.status == "failed") {
+                    alert("Sending test print failed!")
                 }
         });
     }
