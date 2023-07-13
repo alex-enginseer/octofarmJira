@@ -23,7 +23,15 @@ class GcodeCheckItem(db.Entity):
         for gci in query_result:
             gcode_check_items.append(gci)
         return gcode_check_items
-
+    
+    @staticmethod
+    @db_session
+    def Get_All_For_Model(printer_model):
+        query_result = select(gci for gci in GcodeCheckItem if gci.printer_model.id == printer_model)
+        gcode_check_items = []
+        for gci in query_result:
+            gcode_check_items.append(gci)
+        return gcode_check_items
 
     @staticmethod
     def Map_Request(gcode_check_item, form_data):

@@ -56,7 +56,7 @@ def process_new_jobs():
             handle_job_failure(job, MessageNames.GOOGLE_DRIVE_403_ERROR)
             continue
         else:
-            checked_gcode, check_result, weight, estimated_time, printer_model, fail_message = check_gcode(gcode)
+            checked_gcode, check_result, weight, estimated_time, printer_model, fail_message, soft_fail_messages = check_gcode(gcode, job.printer_model)
             if check_result == GcodeStates.VALID:
                 text_file = open(job.Get_File_Name(), "w")
                 n = text_file.write(checked_gcode)
@@ -72,6 +72,8 @@ def process_new_jobs():
                     job.cost = round(weight * 0.05 * 1.0775, 2)
                 commit()
                 jira.send_print_queued(job)
+                for message in soft_fail_messages:
+                    jira.commentStatus(job, message.text, True)
             elif check_result == GcodeStates.INVALID:
                 handle_job_failure(job, fail_message.name if fail_message else MessageNames.GCODE_CHECK_FAIL)
             elif check_result == GcodeStates.NO_PRINTER_MODEL:
@@ -198,7 +200,7 @@ def convert_time_to_seconds(time_string):
     return result
 
 
-def check_gcode(file):
+def check_gcode(file, printer_model):
     """
     Check if gcode fits the requirements that we have set in the config
     """
@@ -207,6 +209,7 @@ def check_gcode(file):
     weight = 0
     estimated_time = ''
     printer_model = ''
+    soft_fail_messages = []
 
     index = len(parsedGcode) - 1
     while (weight == 0 or estimated_time == '' or printer_model == '') and index > 0:
@@ -225,7 +228,7 @@ def check_gcode(file):
                     continue
         index -= 1
 
-    check_items = GcodeCheckItem.Get_All()
+    check_items = GcodeCheckItem.Get_All_For_Model(printer_model)
 
     for check_item in check_items:
         if GcodeCheckActions[check_item.check_action] is GcodeCheckActions.REMOVE_COMMAND_ALL:
@@ -249,21 +252,21 @@ def check_gcode(file):
                         commandFound = True
                         break
             if not commandFound:
-                return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message
+                return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message, soft_fail_messages
 
         elif GcodeCheckActions[check_item.check_action] is GcodeCheckActions.COMMAND_PARAM_MIN:
             for line in parsedGcode:
                 if line.command == check_item.command:
                     value = int(filter_characters(line.params[0]))  # Get int value of first param.
                     if value < int(check_item.action_value):
-                        return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message
+                        return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message, soft_fail_messages
 
         elif GcodeCheckActions[check_item.check_action] is GcodeCheckActions.COMMAND_PARAM_MAX:
             for line in parsedGcode:
                 if line.command == check_item.command:
                     value = int(filter_characters(line.params[0]))  # Get int value of first param.
                     if value > int(check_item.action_value):
-                        return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message
+                        return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message, soft_fail_messages
 
         elif GcodeCheckActions[check_item.check_action] is GcodeCheckActions.KEYWORD_CHECK:
             keyword = Keyword.get(id=check_item.action_value)
@@ -272,11 +275,14 @@ def check_gcode(file):
                 if line.comment.startswith('printer_notes') and keyword.value in line.comment:
                     keywordFound = True;
                     break
-            if not keywordFound:
-                return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message
+            if not keywordFound and check_item.hard_fail:
+                return None, GcodeStates.INVALID, 0, 0, printer_model, check_item.message, soft_fail_messages
+            elif not keywordFound and not check_item.hard_fail:
+                soft_fail_messages.append(check_item.message)
+                
 
     if printer_model == '':  # Putting this down here so that other checks will be hit first.
-        return None, GcodeStates.NO_PRINTER_MODEL, 0, 0, printer_model, None
+        return None, GcodeStates.NO_PRINTER_MODEL, 0, 0, printer_model, None, soft_fail_messages
 
     text_gcode = gcode_to_text(parsedGcode)
-    return text_gcode, GcodeStates.VALID, weight, estimated_time, printer_model, None
+    return text_gcode, GcodeStates.VALID, weight, estimated_time, printer_model, None, soft_fail_messages
