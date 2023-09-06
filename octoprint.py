@@ -34,7 +34,11 @@ def start_queued_jobs():
                 if printer_state[0:7] == 'offline':
                     print(printer[0].name + " : " + printer_state)
                     print("Printer is offline, attempting to reconnect automatically")
-                    printer[0].Connect_Printer()
+                    try:
+                        printer[0].Connect_Printer()
+                    except Exception as e:
+                        print("Unable to connect to " + printer[0].name)
+                        continue
                     time.sleep(5)
                     printer_state = printer[0].Get_Printer_State()
                     print(printer[0].name + " : " + printer_state)
