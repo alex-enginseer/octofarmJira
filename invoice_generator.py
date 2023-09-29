@@ -40,6 +40,7 @@ def first_page(canvas, doc):
     # to line
     canvas.setFont('Times-Roman', 12)
     canvas.drawString(1 * inch, HEIGHT - TOP_MARGIN - 1.5 * inch, "To: " + doc.To)
+    canvas.drawString(1 * inch, HEIGHT - TOP_MARGIN - 1.8 * inch, "Funding Code: " + doc.Code_Name)
 
     # invoice number and date
     canvas.setFont('Times-Roman', 11)
@@ -159,6 +160,7 @@ def generate_invoice(permission_code_id):
     doc = SimpleDocTemplate(doc_name, pagesize=letter)
     doc.To = permission_code.contact_info
     doc.Code_Id = permission_code_id
+    doc.Code_Name = permission_code.name
 
     Story = [Spacer(1, 1.5 * inch)]
 
