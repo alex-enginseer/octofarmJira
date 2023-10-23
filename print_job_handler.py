@@ -162,7 +162,10 @@ def gcode_to_text(parsed_gcode):
     """
     Turns a list of GcodeLine objects into plain text suitable to be written to a text file and run on a printer.
     """
+    startSeconds = time.time()
+    print("Start generating lines")
     text_gcode = ''
+    lines = []
     for line in parsed_gcode:
         new_line = ''
         new_line += line.command + ' '
@@ -172,9 +175,16 @@ def gcode_to_text(parsed_gcode):
             new_line += ' ;'
         if line.comment:
             new_line += line.comment
-        new_line += '\n'
-        text_gcode += new_line
-    return text_gcode
+        lines.append(new_line)
+    print("Finish generating lines")
+    print("Elapsed time: " + (str)(time.time() - startSeconds))
+
+    print("Start joining lines")
+    joinedLines = '\n'.join(lines)
+
+    print("Finish joining lines")
+    print("Elapsed time: " + (str)(time.time() - startSeconds))
+    return joinedLines
 
 
 def filter_characters(string):
