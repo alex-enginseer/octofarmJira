@@ -419,6 +419,16 @@ def edit_permission_code_post(code_id):
     except:
         return {'status': 'failed'}
 
+@app.route('/permissionCodes/printJobsForPermissionCode/<code_id>', methods=['GET'])
+def print_jobs_for_permission_code(code_id):
+    permissionCode = PermissionCode[code_id]
+    return flask.render_template('permissionCodes/print_jobs_for_permission_code.html', permissionCode=permissionCode,
+                                 async_mode=socketio.async_mode, ip=flask.request.host)
+@app.route('/permissionCodes/getPrintJobsForPermissionCode/<code_id>', methods=['GET'])
+def get_print_jobs_for_permission_code(code_id):
+    jobs = PrintJob.Get_Jobs_For_View_Jobs_For_Permission_Code(code_id)
+    return jobs
+
 
 @app.route('/permissionCodes/getInvoice/<code_id>', methods=['GET'])
 def get_invoice_for_permission_code(code_id):
@@ -669,4 +679,4 @@ def download(filename):
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='localhost', port=10001)
+    socketio.run(app, host='localhost', port=10001, allow_unsafe_werkzeug=True)

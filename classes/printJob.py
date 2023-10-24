@@ -82,6 +82,10 @@ class PrintJob(db.Entity):
         return print_jobs
 
     @staticmethod
+    def Get_Jobs_For_View_Jobs_For_Permission_Code(permission_code):
+        return PrintJob.Serialize_Jobs_For_Job_List(PrintJob.Get_Jobs_For_Permission_Code(permission_code))
+
+    @staticmethod
     @db_session
     def Get_Jobs_For_Permission_Code_Not_Invoiced(permission_code):
         print_jobs = []
