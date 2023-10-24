@@ -368,6 +368,20 @@ def permissionCodes():
     all_codes = PermissionCode.Get_All()
     return flask.render_template('permissionCodes/permission_codes.html', permissionCodes=all_codes,
                                  async_mode=socketio.async_mode, ip=flask.request.host)
+@app.route('/permissionCodes/getPermissionCodes')
+def getPermissionCodes():
+    all_codes = PermissionCode.Get_All(True)
+    return all_codes
+
+@app.route('/permissionCodes/addJobToPermissionCode/<code_id>/<job_id>', methods=['POST'])
+def addJobToPermissionCode(code_id, job_id):
+    try:
+        job = PrintJob.get(id=int(job_id))
+        permission_code = PermissionCode.Get_By_Id(int(code_id))
+        job.permission_code = permission_code
+        return {'status': 'success'}
+    except Exception as e:
+        return {'status': 'failed'}
 
 
 @app.route('/permissionCodes/deletePermissionCode/<code_id>', methods=['POST'])
