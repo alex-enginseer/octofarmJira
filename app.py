@@ -679,4 +679,4 @@ def download(filename):
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='localhost', port=10001, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='localhost', port=10001)
