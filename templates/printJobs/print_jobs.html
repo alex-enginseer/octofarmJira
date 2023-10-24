@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Print Jobs{% endblock %}
 {% block head %}
-  {{ super() }}
+    {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='tabulator.min.css') }}">
     <script src="{{ url_for('static', filename='tabulator.min.js') }}"></script>
 {% endblock %}
@@ -12,7 +12,8 @@
             <button class="btn btn-primary" onclick="loadJobs()">Refresh</button>
             <div style="padding-top: 7px">
                 <label class="form-check-label" for="auto_start_prints">Auto Refresh</label>
-                <input onchange="toggleInterval()" checked class="form-check-input" type="checkbox" id="auto_start_prints">
+                <input onchange="toggleInterval()" checked class="form-check-input" type="checkbox"
+                       id="auto_start_prints">
             </div>
             <span style="margin-left: 10px; margin-top: 7px;" id="refresh-timer">Last Refresh 0s ago</span>
         </div>
@@ -21,214 +22,228 @@
     </div>
 
     <script>
-    var generateColumnControls = function() {
-        var columns = table.getColumns()
+        var generateColumnControls = function () {
+            var columns = table.getColumns()
 
-        var controls_el = document.getElementById('column_controls')
-        var count = 0
-        var sub_container = document.createElement('div')
-        for(let column of columns) {
-            var input = document.createElement('input')
-            input.type = 'checkbox'
-            input.onchange = function () {
-                column.toggle()
+            var controls_el = document.getElementById('column_controls')
+            var count = 0
+            var sub_container = document.createElement('div')
+            for (let column of columns) {
+                var input = document.createElement('input')
+                input.type = 'checkbox'
+                input.onchange = function () {
+                    column.toggle()
+                }
+                input.checked = column._column.visible
+                input.name = column._column.definition.title
+                input.classList.add('form-check-input')
+
+                var label = document.createElement('label')
+                label.for = column._column.definition.title
+                label.innerText = column._column.definition.title
+                input.classList.add('form-check-label')
+
+                var container = document.createElement('div')
+                container.classList.add('form-check')
+                container.appendChild(label)
+                container.appendChild(input)
+                sub_container.appendChild(container)
+                if (count++ == 4) {
+                    controls_el.appendChild(sub_container)
+                    sub_container = document.createElement('div')
+                    count = 0
+                }
             }
-            input.checked = column._column.visible
-            input.name = column._column.definition.title
-            input.classList.add('form-check-input')
-
-            var label = document.createElement('label')
-            label.for = column._column.definition.title
-            label.innerText = column._column.definition.title
-            input.classList.add('form-check-label')
-
-            var container = document.createElement('div')
-            container.classList.add('form-check')
-            container.appendChild(label)
-            container.appendChild(input)
-            sub_container.appendChild(container)
-            if (count++ == 4) {
+            if (count != 0) {
                 controls_el.appendChild(sub_container)
-                sub_container = document.createElement('div')
-                count = 0
             }
         }
-        if (count != 0) {
-            controls_el.appendChild(sub_container)
+
+        var secondsFormatter = function (value, data, type, params, component) {
+            if (typeof value == 'number')
+                return new Date(value * 1000).toISOString().substr(11, 8);
+            else
+                return value
         }
-    }
 
-    var secondsFormatter = function(value, data, type, params, component){
-        if (typeof value == 'number')
-            return new Date(value * 1000).toISOString().substr(11, 8);
-        else
-            return value
-    }
-
-    var weightFormatter = function(value, data, type, params, component){
-        if (typeof value == 'number')
-            return value + 'g';
-        else
-            return value
-    }
-
-    var costFormatter = function(value, data, type, params, component){
-        if (typeof value == 'number')
-            return '$' + value;
-        else
-            return value
-    }
-
-    var loadJobs = function() {
-        table.clearData()
-        return $.get("/printJobs/getJobs", (data) => {
-            table.setData(data)
-            last_refresh = 0
-        })
-    }
-
-    var loadJobsSilent = function() {
-        return $.get("/printJobs/getJobs", (data) => {
-            table.replaceData(data)
-            last_refresh = 0
-        })
-    }
-
-    var interval_id = 0
-
-    var toggleInterval = function(){
-        if (interval_id == 0) {
-            loadJobsSilent()
-            interval_id = setInterval(loadJobsSilent, 15000)
+        var weightFormatter = function (value, data, type, params, component) {
+            if (typeof value == 'number')
+                return value + 'g';
+            else
+                return value
         }
-        else {
-            clearInterval(interval_id)
-            interval_id = 0
+
+        var costFormatter = function (value, data, type, params, component) {
+            if (typeof value == 'number')
+                return '$' + value;
+            else
+                return value
         }
-    }
 
-    var table = new Tabulator("#queue_table", {
-        rowClickMenu:[
-            {
-                label:"Start Print",
-                action:function(e, row){
-                    $.post("/printQueue/startPrint/true/" + row._row.data.job_id, (res) => {
-                        if (res.status == 'success')
-                            alert("Print has been started and commented!")
-                        else if (res.status == 'failed')
-                            alert('Action failed! Reason: ' + res.reason)
-                        loadJobs()
-                    })
-                }
-            },
-            {
-                label: "Queue Print",
-                action: function (e, row) {
-                    $.post("/printJobs/queuePrint/" + row._row.data.job_id, (res) => {
-                        if (res.status == 'success')
-                            alert("Print has been queued.")
-                        else if (res.status == 'failed')
-                            alert('Action failed! Reason: ' + res.reason)
-                        loadJobs()
-                    })
-                }
-            },
-            {
-                label:"Finish Print",
-                action:function(e, row){
-                    $.post("/printQueue/markFinished/false/" + row._row.data.job_id, (res) => {
-                        if (res.status == 'success')
-                            alert("Print has been finished")
-                        else if (res.status == 'failed')
-                            alert('Action failed! Reason: ' + res.reason)
-                        loadQueue()
-                    })
-                }
-            },
-            {
-                label:"Finish Print and Comment",
-                action:function(e, row){
-                    $.post("/printQueue/markFinished/true/" + row._row.data.job_id, (res) => {
-                        if (res.status == 'success')
-                            alert("Print has been finished and commented!")
-                        else if (res.status == 'failed')
-                            alert('Action failed! Reason: ' + res.reason)
-                        loadQueue()
-                    })
-                }
-            },
-            {
-                label: "Cancel Print",
-                action: function (e, row) {
-                    $.post("/printQueue/cancelPrint/" + row._row.data.job_id, (res) => {
-                        if (res.status == 'success')
-                            alert("Print has been cancelled.")
-                        else if (res.status == 'failed')
-                            alert('Action failed! Reason: ' + res.reason)
-                        loadJobs()
-                    })
-                }
-            },
-            {
-                label: "Print Receipt",
-                action: function (e, row) {
-                    $.get("/printJobs/printReceipt/" + row._row.data.job_id, (res) => {
-                        if (res.status == 'failed')
-                            alert('Action failed! Reason: ' + res.reason)
-                    })
-                }
-            },
-            {
-                label:"Download .gcode",
-                action:function(e, row){
-                    const anchor = document.createElement("a");
-                    anchor.href = "/printQueue/downloadGcode/" + row._row.data.job_id
-                    anchor.download = row._row.data.job_name
-                    document.body.appendChild(anchor);
-                    anchor.click();
-                }
-            },
-            {
-                label:"Jira Details",
-                action:function(e, row){
-                    //TODO: Add this URL to settings
-                    window.open("https://projects.lib.utah.edu/browse/" + row._row.data.job_name, '_blank')
-                }
-            },
+        var loadJobs = function () {
+            table.clearData()
+            return $.get("/printJobs/getJobs", (data) => {
+                table.setData(data)
+                last_refresh = 0
+            })
+        }
 
-        ],
-        rowFormatter:function(row){
-            var data = row.getData();
-            row.getElement().classList.add(data.print_status)
-        },
-        columns:[
-            {title:"PR", field:"job_name", headerFilter: 'input'},
-            {title:"Print Status", field:"print_status", headerFilter:'list', headerFilterParams: {valuesLookup:true}},
-            {title:"Printer Model", field:"printer_model", headerFilter:'list', headerFilterParams: {valuesLookup:true}},
-            {title:"Printed On", field:"printed_on", headerFilter:'list', headerFilterParams: {valuesLookup:true}},
-            {title:"Print Time", field:"print_time", mutator:secondsFormatter},
-            {title:"Weight", field:"weight", mutator:weightFormatter, visible: false},
-            {title:"Cost", field:"cost", mutator:costFormatter, visible: false},
-            {title:"Job Submitted", field:"job_submitted_date"},
-            {title:"Print Started", field:"print_started_date"},
-            {title:"Print Finished", field:"print_finished_date"},
-            {title:"Permission Code", field:"permission_code"},
-            {title:"Payment Status", field:"payment_status", visible: false},
-            {title:"Payment Date", field:"paid_date", visible: false},
-            {title:"Payment Link", field:"payment_link", visible: false},
-            {title:"Payment Link Created", field:"payment_link_generated_date", visible: false},
-        ],
-    });
+        var loadJobsSilent = function () {
+            return $.get("/printJobs/getJobs", (data) => {
+                table.replaceData(data)
+                last_refresh = 0
+            })
+        }
 
-    var last_refresh = 0
-    var updateTimer = function() {
-        el = document.getElementById('refresh-timer')
-        el.innerText = 'Last Refresh ' + last_refresh + 's ago'
-        last_refresh++
-    }
-    setInterval(updateTimer, 1000)
+        var interval_id = 0
 
-    loadJobs().then(generateColumnControls)
-    interval_id = setInterval(loadJobsSilent, 15000)
+        var toggleInterval = function () {
+            if (interval_id == 0) {
+                loadJobsSilent()
+                interval_id = setInterval(loadJobsSilent, 15000)
+            } else {
+                clearInterval(interval_id)
+                interval_id = 0
+            }
+        }
+
+        var table = new Tabulator("#queue_table", {
+            rowClickMenu: [
+                {
+                    label: "Start Print",
+                    action: function (e, row) {
+                        $.post("/printQueue/startPrint/true/" + row._row.data.job_id, (res) => {
+                            if (res.status == 'success')
+                                alert("Print has been started and commented!")
+                            else if (res.status == 'failed')
+                                alert('Action failed! Reason: ' + res.reason)
+                            loadJobs()
+                        })
+                    }
+                },
+                {
+                    label: "Queue Print",
+                    action: function (e, row) {
+                        $.post("/printJobs/queuePrint/" + row._row.data.job_id, (res) => {
+                            if (res.status == 'success')
+                                alert("Print has been queued.")
+                            else if (res.status == 'failed')
+                                alert('Action failed! Reason: ' + res.reason)
+                            loadJobs()
+                        })
+                    }
+                },
+                {
+                    label: "Finish Print",
+                    action: function (e, row) {
+                        $.post("/printQueue/markFinished/false/" + row._row.data.job_id, (res) => {
+                            if (res.status == 'success')
+                                alert("Print has been finished")
+                            else if (res.status == 'failed')
+                                alert('Action failed! Reason: ' + res.reason)
+                            loadQueue()
+                        })
+                    }
+                },
+                {
+                    label: "Finish Print and Comment",
+                    action: function (e, row) {
+                        $.post("/printQueue/markFinished/true/" + row._row.data.job_id, (res) => {
+                            if (res.status == 'success')
+                                alert("Print has been finished and commented!")
+                            else if (res.status == 'failed')
+                                alert('Action failed! Reason: ' + res.reason)
+                            loadQueue()
+                        })
+                    }
+                },
+                {
+                    label: "Cancel Print",
+                    action: function (e, row) {
+                        $.post("/printQueue/cancelPrint/" + row._row.data.job_id, (res) => {
+                            if (res.status == 'success')
+                                alert("Print has been cancelled.")
+                            else if (res.status == 'failed')
+                                alert('Action failed! Reason: ' + res.reason)
+                            loadJobs()
+                        })
+                    }
+                },
+                {
+                    label: "Print Receipt",
+                    action: function (e, row) {
+                        $.get("/printJobs/printReceipt/" + row._row.data.job_id, (res) => {
+                            if (res.status == 'failed')
+                                alert('Action failed! Reason: ' + res.reason)
+                        })
+                    }
+                },
+                {
+                    label: "Download .gcode",
+                    action: function (e, row) {
+                        const anchor = document.createElement("a");
+                        anchor.href = "/printQueue/downloadGcode/" + row._row.data.job_id
+                        anchor.download = row._row.data.job_name
+                        document.body.appendChild(anchor);
+                        anchor.click();
+                    }
+                },
+                {
+                    label: "Jira Details",
+                    action: function (e, row) {
+                        //TODO: Add this URL to settings
+                        window.open("https://projects.lib.utah.edu/browse/" + row._row.data.job_name, '_blank')
+                    }
+                },
+
+            ],
+            rowFormatter: function (row) {
+                var data = row.getData();
+                row.getElement().classList.add(data.print_status)
+            },
+            columns: [
+                {title: "PR", field: "job_name", headerFilter: 'input'},
+                {
+                    title: "Print Status",
+                    field: "print_status",
+                    headerFilter: 'list',
+                    headerFilterParams: {valuesLookup: true}
+                },
+                {
+                    title: "Printer Model",
+                    field: "printer_model",
+                    headerFilter: 'list',
+                    headerFilterParams: {valuesLookup: true}
+                },
+                {
+                    title: "Printed On",
+                    field: "printed_on",
+                    headerFilter: 'list',
+                    headerFilterParams: {valuesLookup: true}
+                },
+                {title: "Print Time", field: "print_time", mutator: secondsFormatter},
+                {title: "Weight", field: "weight", mutator: weightFormatter, visible: false},
+                {title: "Cost", field: "cost", mutator: costFormatter, visible: false},
+                {title: "Job Submitted", field: "job_submitted_date"},
+                {title: "Print Started", field: "print_started_date"},
+                {title: "Print Finished", field: "print_finished_date"},
+                {title: "Permission Code", field: "permission_code"},
+                {title: "Payment Status", field: "payment_status", visible: false},
+                {title: "Payment Date", field: "paid_date", visible: false},
+                {title: "Payment Link", field: "payment_link", visible: false},
+                {title: "Payment Link Created", field: "payment_link_generated_date", visible: false},
+            ],
+        });
+
+        var last_refresh = 0
+        var updateTimer = function () {
+            el = document.getElementById('refresh-timer')
+            el.innerText = 'Last Refresh ' + last_refresh + 's ago'
+            last_refresh++
+        }
+        setInterval(updateTimer, 1000)
+
+        loadJobs().then(generateColumnControls)
+        interval_id = setInterval(loadJobsSilent, 15000)
     </script>
 {% endblock %}
