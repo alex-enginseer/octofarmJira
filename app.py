@@ -376,9 +376,12 @@ def getPermissionCodes():
 @app.route('/permissionCodes/addJobToPermissionCode/<code_id>/<job_id>', methods=['POST'])
 def addJobToPermissionCode(code_id, job_id):
     try:
-        job = PrintJob.get(id=int(job_id))
+        job = PrintJob.get(job_id=int(job_id))
         permission_code = PermissionCode.Get_By_Id(int(code_id))
-        job.permission_code = permission_code
+        if job.permission_code.id == permission_code.id:
+            job.permission_code = None
+        else:
+            job.permission_code = permission_code
         return {'status': 'success'}
     except Exception as e:
         return {'status': 'failed'}
