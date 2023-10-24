@@ -22,6 +22,12 @@
     </div>
 
     <script>
+        var permissionCodes = []
+        var getPermissionCodes = function () {
+            return $.get("/permissionCodes/getPermissionCodes", (data) => {
+                permissionCodes = JSON.parse(data)
+            })
+        }
         var generateColumnControls = function () {
             var columns = table.getColumns()
 
@@ -106,134 +112,155 @@
                 interval_id = 0
             }
         }
+        var table = new Tabulator("#queue_table", {})
+        getPermissionCodes().then(() => {
+            table = new Tabulator("#queue_table", {
+                rowClickMenu: [
+                    {
+                        label: "Start Print",
+                        action: function (e, row) {
+                            $.post("/printQueue/startPrint/true/" + row._row.data.job_id, (res) => {
+                                if (res.status == 'success')
+                                    alert("Print has been started and commented!")
+                                else if (res.status == 'failed')
+                                    alert('Action failed! Reason: ' + res.reason)
+                                loadJobs()
+                            })
+                        }
+                    },
+                    {
+                        label: "Queue Print",
+                        action: function (e, row) {
+                            $.post("/printJobs/queuePrint/" + row._row.data.job_id, (res) => {
+                                if (res.status == 'success')
+                                    alert("Print has been queued.")
+                                else if (res.status == 'failed')
+                                    alert('Action failed! Reason: ' + res.reason)
+                                loadJobs()
+                            })
+                        }
+                    },
+                    {
+                        label: "Finish Print",
+                        action: function (e, row) {
+                            $.post("/printQueue/markFinished/false/" + row._row.data.job_id, (res) => {
+                                if (res.status == 'success')
+                                    alert("Print has been finished")
+                                else if (res.status == 'failed')
+                                    alert('Action failed! Reason: ' + res.reason)
+                                loadQueue()
+                            })
+                        }
+                    },
+                    {
+                        label: "Finish Print and Comment",
+                        action: function (e, row) {
+                            $.post("/printQueue/markFinished/true/" + row._row.data.job_id, (res) => {
+                                if (res.status == 'success')
+                                    alert("Print has been finished and commented!")
+                                else if (res.status == 'failed')
+                                    alert('Action failed! Reason: ' + res.reason)
+                                loadQueue()
+                            })
+                        }
+                    },
+                    {
+                        label: "Cancel Print",
+                        action: function (e, row) {
+                            $.post("/printQueue/cancelPrint/" + row._row.data.job_id, (res) => {
+                                if (res.status == 'success')
+                                    alert("Print has been cancelled.")
+                                else if (res.status == 'failed')
+                                    alert('Action failed! Reason: ' + res.reason)
+                                loadJobs()
+                            })
+                        }
+                    },
+                    {
+                        label: "Print Receipt",
+                        action: function (e, row) {
+                            $.get("/printJobs/printReceipt/" + row._row.data.job_id, (res) => {
+                                if (res.status == 'failed')
+                                    alert('Action failed! Reason: ' + res.reason)
+                            })
+                        }
+                    },
+                    {
+                        label: "Download .gcode",
+                        action: function (e, row) {
+                            const anchor = document.createElement("a");
+                            anchor.href = "/printQueue/downloadGcode/" + row._row.data.job_id
+                            anchor.download = row._row.data.job_name
+                            document.body.appendChild(anchor);
+                            anchor.click();
+                        }
+                    },
+                    {
+                        label: "Jira Details",
+                        action: function (e, row) {
+                            //TODO: Add this URL to settings
+                            window.open("https://projects.lib.utah.edu/browse/" + row._row.data.job_name, '_blank')
+                        }
+                    },
+                    {
+                        label: "Add Funding Code",
+                        menu:
+                            permissionCodes.map((code) => {
+                                return {
+                                    label: code.name,
+                                    action: function (e, row) {
+                                        $.post("/permissionCodes/addJobToPermissionCode/" + code.id + '/' + row._row.data.job_id, (res) => {
+                                            if (res.status == 'success')
+                                                alert("Code has been added.")
+                                            else if (res.status == 'failed')
+                                                alert('Code not added!')
+                                        })
 
-        var table = new Tabulator("#queue_table", {
-            rowClickMenu: [
-                {
-                    label: "Start Print",
-                    action: function (e, row) {
-                        $.post("/printQueue/startPrint/true/" + row._row.data.job_id, (res) => {
-                            if (res.status == 'success')
-                                alert("Print has been started and commented!")
-                            else if (res.status == 'failed')
-                                alert('Action failed! Reason: ' + res.reason)
-                            loadJobs()
-                        })
-                    }
-                },
-                {
-                    label: "Queue Print",
-                    action: function (e, row) {
-                        $.post("/printJobs/queuePrint/" + row._row.data.job_id, (res) => {
-                            if (res.status == 'success')
-                                alert("Print has been queued.")
-                            else if (res.status == 'failed')
-                                alert('Action failed! Reason: ' + res.reason)
-                            loadJobs()
-                        })
-                    }
-                },
-                {
-                    label: "Finish Print",
-                    action: function (e, row) {
-                        $.post("/printQueue/markFinished/false/" + row._row.data.job_id, (res) => {
-                            if (res.status == 'success')
-                                alert("Print has been finished")
-                            else if (res.status == 'failed')
-                                alert('Action failed! Reason: ' + res.reason)
-                            loadQueue()
-                        })
-                    }
-                },
-                {
-                    label: "Finish Print and Comment",
-                    action: function (e, row) {
-                        $.post("/printQueue/markFinished/true/" + row._row.data.job_id, (res) => {
-                            if (res.status == 'success')
-                                alert("Print has been finished and commented!")
-                            else if (res.status == 'failed')
-                                alert('Action failed! Reason: ' + res.reason)
-                            loadQueue()
-                        })
-                    }
-                },
-                {
-                    label: "Cancel Print",
-                    action: function (e, row) {
-                        $.post("/printQueue/cancelPrint/" + row._row.data.job_id, (res) => {
-                            if (res.status == 'success')
-                                alert("Print has been cancelled.")
-                            else if (res.status == 'failed')
-                                alert('Action failed! Reason: ' + res.reason)
-                            loadJobs()
-                        })
-                    }
-                },
-                {
-                    label: "Print Receipt",
-                    action: function (e, row) {
-                        $.get("/printJobs/printReceipt/" + row._row.data.job_id, (res) => {
-                            if (res.status == 'failed')
-                                alert('Action failed! Reason: ' + res.reason)
-                        })
-                    }
-                },
-                {
-                    label: "Download .gcode",
-                    action: function (e, row) {
-                        const anchor = document.createElement("a");
-                        anchor.href = "/printQueue/downloadGcode/" + row._row.data.job_id
-                        anchor.download = row._row.data.job_name
-                        document.body.appendChild(anchor);
-                        anchor.click();
-                    }
-                },
-                {
-                    label: "Jira Details",
-                    action: function (e, row) {
-                        //TODO: Add this URL to settings
-                        window.open("https://projects.lib.utah.edu/browse/" + row._row.data.job_name, '_blank')
-                    }
-                },
+                                    }
+                                }
+                            })
 
-            ],
-            rowFormatter: function (row) {
-                var data = row.getData();
-                row.getElement().classList.add(data.print_status)
-            },
-            columns: [
-                {title: "PR", field: "job_name", headerFilter: 'input'},
-                {
-                    title: "Print Status",
-                    field: "print_status",
-                    headerFilter: 'list',
-                    headerFilterParams: {valuesLookup: true}
+                    }
+
+                ],
+                rowFormatter: function (row) {
+                    var data = row.getData();
+                    row.getElement().classList.add(data.print_status)
                 },
-                {
-                    title: "Printer Model",
-                    field: "printer_model",
-                    headerFilter: 'list',
-                    headerFilterParams: {valuesLookup: true}
-                },
-                {
-                    title: "Printed On",
-                    field: "printed_on",
-                    headerFilter: 'list',
-                    headerFilterParams: {valuesLookup: true}
-                },
-                {title: "Print Time", field: "print_time", mutator: secondsFormatter},
-                {title: "Weight", field: "weight", mutator: weightFormatter, visible: false},
-                {title: "Cost", field: "cost", mutator: costFormatter, visible: false},
-                {title: "Job Submitted", field: "job_submitted_date"},
-                {title: "Print Started", field: "print_started_date"},
-                {title: "Print Finished", field: "print_finished_date"},
-                {title: "Permission Code", field: "permission_code"},
-                {title: "Payment Status", field: "payment_status", visible: false},
-                {title: "Payment Date", field: "paid_date", visible: false},
-                {title: "Payment Link", field: "payment_link", visible: false},
-                {title: "Payment Link Created", field: "payment_link_generated_date", visible: false},
-            ],
-        });
+                columns: [
+                    {title: "PR", field: "job_name", headerFilter: 'input'},
+                    {
+                        title: "Print Status",
+                        field: "print_status",
+                        headerFilter: 'list',
+                        headerFilterParams: {valuesLookup: true}
+                    },
+                    {
+                        title: "Printer Model",
+                        field: "printer_model",
+                        headerFilter: 'list',
+                        headerFilterParams: {valuesLookup: true}
+                    },
+                    {
+                        title: "Printed On",
+                        field: "printed_on",
+                        headerFilter: 'list',
+                        headerFilterParams: {valuesLookup: true}
+                    },
+                    {title: "Print Time", field: "print_time", mutator: secondsFormatter},
+                    {title: "Weight", field: "weight", mutator: weightFormatter, visible: false},
+                    {title: "Cost", field: "cost", mutator: costFormatter, visible: false},
+                    {title: "Job Submitted", field: "job_submitted_date"},
+                    {title: "Print Started", field: "print_started_date"},
+                    {title: "Print Finished", field: "print_finished_date"},
+                    {title: "Permission Code", field: "permission_code"},
+                    {title: "Payment Status", field: "payment_status", visible: false},
+                    {title: "Payment Date", field: "paid_date", visible: false},
+                    {title: "Payment Link", field: "payment_link", visible: false},
+                    {title: "Payment Link Created", field: "payment_link_generated_date", visible: false},
+                ],
+            });
+        })
 
         var last_refresh = 0
         var updateTimer = function () {

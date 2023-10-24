@@ -22,11 +22,13 @@ class PermissionCode(db.Entity):
 
     @staticmethod
     @db_session
-    def Get_All():
+    def Get_All(serialize=False):
         query_result = select(p for p in PermissionCode)
         codes = []
         for c in query_result:
             codes.append(c)
+        if serialize:
+            return PermissionCode.Serialize_Codes_For_Permission_Code_Menu(codes)
         return codes
 
     @staticmethod
@@ -108,3 +110,18 @@ class PermissionCode(db.Entity):
                 elif c.end_date < today:
                     return PermissionCodeStates.EXPIRED
         return PermissionCodeStates.INVALID
+
+    @staticmethod
+    def Serialize_Codes_For_Permission_Code_Menu(codes):
+        result = []
+        for c in codes:
+            if c.id != 1:
+                result.append(c.To_Dict_For_Permission_Code_Menu())
+        return json.dumps(result)
+    def To_Dict_For_Permission_Code_Menu(self):
+        result = {
+            'id': self.id,
+            'name': self.name
+        }
+        return result
+
