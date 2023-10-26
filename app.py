@@ -378,7 +378,7 @@ def addJobToPermissionCode(code_id, job_id):
     try:
         job = PrintJob.get(job_id=int(job_id))
         permission_code = PermissionCode.Get_By_Id(int(code_id))
-        if job.permission_code.id == permission_code.id:
+        if job.permission_code and job.permission_code.id == permission_code.id:
             job.permission_code = None
         else:
             job.permission_code = permission_code
@@ -696,4 +696,5 @@ def download(filename):
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='localhost', port=10001)
+    # socketio.run(app, host='localhost', port=10001)
+    socketio.run(app, host='localhost', port=10001, allow_unsafe_werkzeug=True)
