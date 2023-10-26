@@ -696,5 +696,6 @@ def download(filename):
 
 
 if __name__ == '__main__':
-    # socketio.run(app, host='localhost', port=10001)
-    socketio.run(app, host='localhost', port=10001, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='localhost', port=10001)
+    # socketio.run(app, host='localhost', port=10001, allow_unsafe_werkzeug=True) # Needed to run in debug mode.
+    # werkzeug is a development http server not meant for production, but it is fine for us because we do not experience heavy loads.
