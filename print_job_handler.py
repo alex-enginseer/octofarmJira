@@ -139,23 +139,26 @@ def parse_gcode(gcode):
     Parses a .gcode file into a list of GcodeLine objects.
     Empty lines are ignored and not added.
     """
-    gcode = gcode.split("\n")
-    parsed_gcode = []
-    for line in gcode:
-        if line:  # Filter out empty lines.
-            commentIndex = 0  # Start at 0 so we enter the loop.
-            comment = ""
-            while commentIndex >= 0:  # Find any comments.
-                commentIndex = line.find(';')  # Will be -1 if no comments found.
-                if commentIndex >= 0:
-                    comment = comment + line[commentIndex + 1:].strip()  # Pull out the comment
-                    line = line[:commentIndex]  # Remove it from the line.
-            if line:  # If there is anything left in the line keep going.
-                split_line = line.split()
-                parsed_gcode.append(GcodeLine(split_line[0], split_line[1:], comment))
-            else:  # If nothing is left at this point, the line is purely a comment.
-                parsed_gcode.append(GcodeLine(';', None, comment))
-    return parsed_gcode
+    try:
+        gcode = gcode.split("\n")
+        parsed_gcode = []
+        for line in gcode:
+            if line:  # Filter out empty lines.
+                commentIndex = 0  # Start at 0 so we enter the loop.
+                comment = ""
+                while commentIndex >= 0:  # Find any comments.
+                    commentIndex = line.find(';')  # Will be -1 if no comments found.
+                    if commentIndex >= 0:
+                        comment = comment + line[commentIndex + 1:].strip()  # Pull out the comment
+                        line = line[:commentIndex]  # Remove it from the line.
+                if line:  # If there is anything left in the line keep going.
+                    split_line = line.split()
+                    parsed_gcode.append(GcodeLine(split_line[0], split_line[1:], comment))
+                else:  # If nothing is left at this point, the line is purely a comment.
+                    parsed_gcode.append(GcodeLine(';', None, comment))
+        return parsed_gcode
+    except Exception as e:
+        return []
 
 
 def gcode_to_text(parsed_gcode):
@@ -214,6 +217,9 @@ def check_gcode(file, printer_model):
     estimated_time = ''
     printer_model = ''
     soft_fail_messages = []
+
+    if len(parsedGcode) == 0:
+        return None, GcodeStates.INVALID, 0, 0, None, None, soft_fail_messages
 
     index = len(parsedGcode) - 1
     while (weight == 0 or estimated_time == '' or printer_model == '') and index > 0:
