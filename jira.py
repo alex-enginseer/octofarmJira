@@ -1,4 +1,5 @@
 import datetime
+import json.decoder
 
 from requests.auth import HTTPBasicAuth
 import yaml
@@ -50,9 +51,14 @@ def get_issues():
                 issues.append(response)
             else:
                 print("Bad response from Jira on issue:", issue.split('/')[-1])
+    except json.decoder.JSONDecodeError as errj:
+        print("Error decoding JSON.")
+        if (response):
+            print("Response from Jira: " + response.text)
+        return []
     except requests.exceptions.Timeout as errt:
         print("Timeout Error while getting issues.")
-        return [];
+        return []
     return issues
 
 
