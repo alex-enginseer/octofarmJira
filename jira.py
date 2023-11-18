@@ -51,13 +51,16 @@ def get_issues():
                 issues.append(response)
             else:
                 print("Bad response from Jira on issue:", issue.split('/')[-1])
-    except json.decoder.JSONDecodeError as errj:
-        print("Error decoding JSON.")
+    except json.decoder.JSONDecodeError:
+        print("\nError decoding JSON.\n")
         if (response):
             print("Response from Jira: " + response.text)
         return []
-    except requests.exceptions.Timeout as errt:
-        print("Timeout Error while getting issues.")
+    except requests.exceptions.ConnectionError:
+        print("\nConnection Error while getting issues.\n")
+        return []
+    except requests.exceptions.Timeout:
+        print("\nTimeout Error while getting issues.\n")
         return []
     return issues
 
