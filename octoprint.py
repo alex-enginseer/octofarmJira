@@ -20,14 +20,20 @@ def start_queued_jobs():
     if len(queued_jobs) == 0:
         return
 
-    job_count_by_user = []
+    job_count_by_user = {}
     for job in printing_jobs:
+        job_count_by_user.setdefault(job.user.id, 0)
         job_count_by_user[job.user.id] += 1
 
+    jobs_to_print = []
     for job in queued_jobs:
-        if job_count_by_user[job.user.id] >= 5:
-            queued_jobs.remove(job)
+        job_count_by_user.setdefault(job.user.id, 0)
+        if job_count_by_user[job.user.id] <= 5:
+            jobs_to_print.append(job)
+            job_count_by_user[job.user.id] += 1
+        else:
             print(job.Get_Name() + " delayed due to concurrent prints per user limit.")
+
 
     jobs_started = 0  # Just used to track the number of jobs for logging.
     manual_jobs = 0
@@ -36,7 +42,7 @@ def start_queued_jobs():
     for pm in printer_models:
         if pm.auto_start_prints:
             printers = list(filter(lambda p: p[0].printer_model.id == pm.id, printers_by_count))  # Get printers for this printer model
-            jobs = list(filter(lambda j: j.printer_model.id == pm.id, queued_jobs))  # Get jobs for this printer model
+            jobs = list(filter(lambda j: j.printer_model.id == pm.id, jobs_to_print))  # Get jobs for this printer model
             for printer in printers:
                 # printer is a tuple: (printer, <print_count>)
                 if len(jobs) == 0:  # We are out of jobs for this printer model
@@ -57,7 +63,7 @@ def start_queued_jobs():
                     start_print_job(jobs.pop(0), printer[0])  # Removes the job from the list for this printer model
                     jobs_started += 1
         else:
-            jobs = list(filter(lambda j: j.printer_model.id == pm.id, queued_jobs))  # Get jobs for this printer model
+            jobs = list(filter(lambda j: j.printer_model.id == pm.id, jobs_to_print))  # Get jobs for this printer model
             manual_jobs += len(jobs)
 
     print(str(len(queued_jobs) - jobs_started - manual_jobs) + " auto start jobs still in queue.")
