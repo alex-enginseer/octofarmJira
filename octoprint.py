@@ -14,9 +14,20 @@ with open("config_files/config.yml", "r") as yamlFile:
 def start_queued_jobs():
     print("Checking for queued jobs...")
     queued_jobs = PrintJob.Get_All_By_Status(PrintStatus.IN_QUEUE)
+    printing_jobs = PrintJob.Get_All_By_Status(PrintStatus.PRINTING)
+
     print(str(len(queued_jobs)) + " queued jobs found.")
     if len(queued_jobs) == 0:
         return
+
+    job_count_by_user = []
+    for job in printing_jobs:
+        job_count_by_user[job.user.id] += 1
+
+    for job in queued_jobs:
+        if job_count_by_user[job.user.id] >= 5:
+            queued_jobs.remove(job)
+            print(job.Get_Name() + " delayed due to concurrent prints per user limit.")
 
     jobs_started = 0  # Just used to track the number of jobs for logging.
     manual_jobs = 0
