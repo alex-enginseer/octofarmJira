@@ -104,6 +104,18 @@
                 }
             },
             {
+                    label: "Cancel and Requeue",
+                    action: function (e, row) {
+                        $.post("/printQueue/cancelAndRequeue/" + row._row.data.job_id, (res) => {
+                            if (res.status == 'success')
+                                alert("Print has been requeued.")
+                            else if (res.status == 'failed')
+                                alert('Action failed! Reason: ' + res.reason)
+                            loadJobs()
+                        })
+                    }
+                },
+            {
                 label: "Print Receipt",
                 action: function (e, row) {
                     $.get("/printJobs/printReceipt/" + row._row.data.job_id, (res) => {
