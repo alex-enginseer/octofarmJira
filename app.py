@@ -129,6 +129,35 @@ def cancel_print(job_id=None):
     except Exception as e:
         return {'status': 'failed', 'reason': repr(e)}
 
+@app.route('/printQueue/cancelAndRequeue/<job_id>', methods=['POST'])
+def cancel_and_requeue(job_id=None):
+    """ job_id = string of job_id for job """
+    try:
+        job = PrintJob.get(job_id=int(job_id))
+        if not job:
+            return {'status': 'failed', 'reason': 'job_not_found'}
+
+        job.print_status = PrintStatus.CANCELLED.name
+        commit()
+        jira.send_print_cancelled(job)
+
+        if os.path.exists(job.Get_File_Name()):
+            os.remove(job.Get_File_Name())
+
+        jira.send_reopen_job(job)
+        job.print_status = PrintStatus.NEW.name
+        job.printed_on = None
+        job.print_started_date = None
+        job.print_finished_date = None
+        job.failure_message = None
+        commit()
+        return {'status': 'success'}
+
+        return {'status': 'success'}
+    except Exception as e:
+        return {'status': 'failed', 'reason': repr(e)}
+
+
 
 @app.route('/printQueue/markFinished/<comment>/<job_id>', methods=['POST'])
 def mark_finished(comment=None, job_id=None):
