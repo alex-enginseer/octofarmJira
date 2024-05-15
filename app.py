@@ -189,7 +189,7 @@ def print_jobs():
 
 @app.route('/printJobs/getJobs', methods=['GET'])
 def get_jobs():
-    jobs = PrintJob.Get_All_Print_Jobs_Screen(250)
+    jobs = PrintJob.Get_All_Print_Jobs_Screen(550)
     return jobs
 
 

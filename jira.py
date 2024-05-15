@@ -99,6 +99,10 @@ def parse_gcode_url(issue):
 
 @db_session
 def get_new_print_jobs():
+
+    # Stop getting new jobs while on holiday break
+    #return []
+
     # Get the IDs of issues that are new and have not been processed to ensure we don't add duplicates
     print("Checking Jira for new issues...")
     existing_issues = PrintJob.Get_All()
