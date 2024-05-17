@@ -119,7 +119,7 @@ class PermissionCode(db.Entity):
         if module.is_valid(code):
             return PermissionCodeStates.VALID
         else:
-            return PermissionCodeStates.INVALID
+            return PermissionCodeStates.VALIDATOR_FAIL
 
     @staticmethod
     def Serialize_Codes_For_Permission_Code_Menu(codes):
