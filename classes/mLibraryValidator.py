@@ -10,6 +10,7 @@ class MLibraryValidator(FundingCodeValidator):
             return 1
 
     def looks_external_chartfield(self, code):
+        print("The exact contents of code is %s"%code)
         # Checks for codes that appear to be external chartfield codes
         chartfield = re.compile('(\d){2}[ -](\d){5}[ -](\d){4}[ -](\d){5}[ -](\d){5}')
         return chartfield.match(code)
