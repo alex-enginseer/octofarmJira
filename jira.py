@@ -71,12 +71,12 @@ def parse_permission_code(description):
     code_string = description[description.find(start) + len(start):description.rfind(end)]
     if code_string:
         # Validations specific to a certain system of funding codes happen first. 
-            # If you have no specific checks, comment out this section
-            code_state = PermissionCode.Use_Validation_Module(MLibraryValidator(), job.permission_code.code)
-            print("In Jira parser, module sent %s"%code_state)
-            if code_state == PermissionCodeStates.VALIDATOR_FAIL:
-                return 74 # Should be 2; in new installs 2 will always be invalid
-                
+        # If you have no specific checks, comment out this section
+        code_state = PermissionCode.Use_Validation_Module(MLibraryValidator(), job.permission_code.code)
+        print("In Jira parser, module sent %s"%code_state)
+        if code_state == PermissionCodeStates.VALIDATOR_FAIL:
+            return 74 # Should be 2; in new installs 2 will always be invalid 
+            
         code = PermissionCode.get(code=code_string)
         if code:
             return code.id
