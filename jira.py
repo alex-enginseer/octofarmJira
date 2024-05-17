@@ -8,6 +8,7 @@ from classes.user import *
 import os
 import time
 from classes.enumDefinitions import *
+from classes.mLibraryValidator import MLibraryValidator
 
 # load all of our config files
 with open("config_files/config.yml", "r") as yamlFile:
@@ -76,7 +77,7 @@ def parse_permission_code(description):
         print("In Jira parser, module sent %s"%code_state)
         if code_state == PermissionCodeStates.VALIDATOR_FAIL:
             return 74 # Should be 2; in new installs 2 will always be invalid 
-            
+
         code = PermissionCode.get(code=code_string)
         if code:
             return code.id
