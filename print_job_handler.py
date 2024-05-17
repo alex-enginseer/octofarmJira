@@ -42,7 +42,7 @@ def process_new_jobs():
             # If you have no specific checks, comment out this section
             code_state = PermissionCode.Use_Validation_Module(MLibraryValidator(), job.permission_code.code)
             print("Validation module sent %s"%code_state)
-            if code_state == PermissionCodeStates.VALIDATOR_FAIL:
+            if code_state == PermissionCodeStates.VALIDATOR_FAIL or job.permission_code.id == 74:
                 handle_job_failure(job, MessageNames.PERMISSION_VALIDATOR_FAIL)
                 continue
 
