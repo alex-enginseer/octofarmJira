@@ -55,7 +55,7 @@ def drop_and_create_db():
         m13 = Message(name='NO_PRINTER_MODEL', text='We could not determine what printer this gcode was for! It is likely that your print profiles are out of date or you do not have them installed correctly.')
         m14 = Message(name='PRINT_CANCELLED', text='Print cancelled from admin panel.')
         m15 = Message(name='PRINT_QUEUED', text='Print queued from admin panel.')
-
+        m16 = Message(name='PERMISSION_VALIDATOR_FAIL', text='Your permission code has failed checks set up specific to your organization. Please contact an administrator for assistance.')
         commit()
 
         gci1 = GcodeCheckItem(name="Profile", command=";", check_action=GcodeCheckActions.KEYWORD_CHECK.name, action_value='2', hard_fail=False, message=12, printer_model=1)

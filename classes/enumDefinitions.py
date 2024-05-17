@@ -19,6 +19,8 @@ class PermissionCodeStates(Enum):
     """Code exists, but not yet active"""
     OVER_BUDGET = 5
     """Not yet implemented"""
+    VALIDATOR_FAIL = 6
+    """System specific failure"""
 
 
 class JiraTransitionCodes(Enum):
@@ -93,6 +95,7 @@ class MessageNames(Enum):
     BLACK_LIST_FAIL = auto()
     PERMISSION_CODE_INVALID = auto()
     PERMISSION_CODE_EXPIRED = auto()
+    PERMISSION_VALIDATOR_FAIL = auto()
     PERMISSION_CODE_NOT_YET_ACTIVE = auto()
     NO_FILE_ATTACHED = auto()
     UNKNOWN_DOWNLOAD_ERROR = auto()

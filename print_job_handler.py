@@ -5,6 +5,7 @@ from classes.permissionCode import *
 from classes.gcodeCheckItem import *
 from classes.enumDefinitions import *
 import re
+from classes.mLibraryValidator import MLibraryValidator
 
 # load all of our config files
 from classes.printerModel import PrinterModel
@@ -36,6 +37,15 @@ def process_new_jobs():
             continue
 
         elif job.permission_code:  # If there is a permission code, validate it.
+
+            # Validations specific to a certain system of funding codes happen first. 
+            # If you have no specific checks, comment out this section
+            code_state = PermissionCode.Use_Validation_Module(MLibraryValidator(), job.permission_code.code)
+            if code_state == PermissionCodeStates.VALIDATOR_FAIL:
+                handle_job_failure(job, MessageNames.PERMISSION_VALIDATOR_FAIL)
+                continue
+
+            # Check if code is present in internal permission code list
             code_state = PermissionCode.Validate_Permission_Code(job.permission_code.code)
             if code_state == PermissionCodeStates.INVALID:
                 handle_job_failure(job, MessageNames.PERMISSION_CODE_INVALID)
@@ -47,6 +57,7 @@ def process_new_jobs():
                 handle_job_failure(job, MessageNames.PERMISSION_CODE_NOT_YET_ACTIVE)
                 continue
 
+            
         gcode = download_gcode(job)
 
         if gcode == "ERROR":

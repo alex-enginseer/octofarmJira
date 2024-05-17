@@ -112,6 +112,16 @@ class PermissionCode(db.Entity):
         return PermissionCodeStates.INVALID
 
     @staticmethod
+    @db_session
+    def Use_Validation_Module(module, code):
+        # Uses system-specific validators to check a code. Still returns VALID and INVALID states, could be used on its own
+        # in possible architectures
+        if module.is_valid(code):
+            return PermissionCodeStates.VALID
+        else:
+            return PermissionCodeStates.INVALID
+
+    @staticmethod
     def Serialize_Codes_For_Permission_Code_Menu(codes):
         result = []
         for c in codes:
