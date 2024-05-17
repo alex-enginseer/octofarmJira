@@ -40,7 +40,7 @@ def process_new_jobs():
 
             # Validations specific to a certain system of funding codes happen first. 
             # If you have no specific checks, comment out this section
-            code_state = PermissionCode.Use_Validation_Module(MLibraryValidator, job.permission_code.code)
+            code_state = PermissionCode.Use_Validation_Module(MLibraryValidator(), job.permission_code.code)
             if code_state == PermissionCodeStates.VALIDATOR_FAIL:
                 handle_job_failure(job, MessageNames.PERMISSION_VALIDATOR_FAIL)
                 continue
