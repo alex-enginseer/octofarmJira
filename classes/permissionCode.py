@@ -119,6 +119,7 @@ class PermissionCode(db.Entity):
         if module.is_valid(code):
             return PermissionCodeStates.VALID
         else:
+            # Must return VALIDATOR_FAIL not INVALID; INVALID only appears when code is not in internal list
             return PermissionCodeStates.VALIDATOR_FAIL
 
     @staticmethod
