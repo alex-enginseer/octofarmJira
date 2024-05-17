@@ -3,7 +3,7 @@ from classes.fundingCodeValidator import FundingCodeValidator
 
 class MLibraryValidator(FundingCodeValidator):
     def is_valid(self, code):
-        if looks_external_chartfield(code):
+        if self.looks_external_chartfield(code):
             return 0 
         else:
             return 1
