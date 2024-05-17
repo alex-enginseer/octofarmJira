@@ -116,6 +116,7 @@ class PermissionCode(db.Entity):
     def Use_Validation_Module(module, code):
         # Uses system-specific validators to check a code. Still returns VALID and INVALID states, could be used on its own
         # in possible architectures
+        print("Attempting to validate the code %s"%code)
         if module.is_valid(code):
             return PermissionCodeStates.VALID
         else:
