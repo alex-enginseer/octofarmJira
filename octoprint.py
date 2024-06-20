@@ -28,7 +28,7 @@ def start_queued_jobs():
     jobs_to_print = []
     for job in queued_jobs:
         job_count_by_user.setdefault(job.user.id, 0)
-        if job_count_by_user[job.user.id] <= 5:
+        if job_count_by_user[job.user.id] <= 2:
             jobs_to_print.append(job)
             job_count_by_user[job.user.id] += 1
         else:
