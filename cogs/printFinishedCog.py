@@ -11,7 +11,7 @@ class printFinishedCog(commands.Cog):
 
     @tasks.loop(seconds=5)
     async def printer(self):
-        print(self.index)
+        # print(self.index)
         self.index += 1
 
 
