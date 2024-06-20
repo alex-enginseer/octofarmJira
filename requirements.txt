@@ -24,3 +24,4 @@ Pillow
 pony~=0.7.16
 fpdf~=1.7.2
 reportlab~=4.0.4
+py-cord
