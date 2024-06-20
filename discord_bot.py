@@ -15,7 +15,7 @@ bot = discord.Bot()
 @bot.event
 async def on_ready():
     print("I'M ALIVE!")
-    channel = bot.get_channel(771460089981829170)
+    channel = bot.get_channel(1253468611310387342)
     await channel.send("Bot is running!")
 
 @bot.slash_command(name="queueinfo", description="Basic info about the print queue.")
