@@ -74,6 +74,8 @@ class PrintStatus(Enum):
     """Print failed and was not completed."""
     NEEDS_CLEAR = auto()
     """Print completed and needs clearing."""
+    NEEDS_CLEAR_REPORTED = auto()
+    """Print completed and needs clearing, notif has been sent"""
 
 
 class PaymentStatus(Enum):
