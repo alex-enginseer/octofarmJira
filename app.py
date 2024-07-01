@@ -219,7 +219,7 @@ def queue_print(job_id):
 @app.route('/printers')
 def printers():
     all_printers = Printer.Get_All()
-    return flask.render_template('printers/printers.html', printers=all_printers, 
+    return flask.render_template('printers/printers.html', printers=all_printers,
                                  ip=flask.request.host)
 
 
@@ -247,7 +247,7 @@ def toggle_printer_status(printer_id):
 @app.route('/printers/createPrinter', methods=['GET'])
 def create_printer_get():
     printer_models = PrinterModel.Get_All()
-    return flask.render_template('printers/create_printer.html', models=printer_models, 
+    return flask.render_template('printers/create_printer.html', models=printer_models,
                                  ip=flask.request.host)
 
 
@@ -314,7 +314,7 @@ def test_print(printer_id):
 @app.route('/users')
 def users():
     all_users = User.Get_All()
-    return flask.render_template('users/users.html', users=all_users, 
+    return flask.render_template('users/users.html', users=all_users,
                                  ip=flask.request.host)
 
 
@@ -343,7 +343,7 @@ def toggle_black_listed_status(user_id):
 @app.route('/users/editUser/<user_id>', methods=['GET'])
 def edit_user_get(user_id):
     user = User[user_id]
-    return flask.render_template('users/edit_user.html', user=user, 
+    return flask.render_template('users/edit_user.html', user=user,
                                  ip=flask.request.host)
 
 
@@ -397,7 +397,7 @@ def delete_permission_code(code_id):
 
 @app.route('/permissionCodes/createPermissionCode', methods=['GET'])
 def create_permission_code_get():
-    return flask.render_template('permissionCodes/create_permission_code.html', 
+    return flask.render_template('permissionCodes/create_permission_code.html',
                                  ip=flask.request.host)
 
 
@@ -448,6 +448,15 @@ def get_invoice_for_permission_code(code_id):
     filename = invoice_generator.generate_invoice(code_id)
     return flask.send_from_directory("", filename, as_attachment=True)
 
+@app.route('/permissionCodes/getAllInvoices', methods=['GET'])
+def get_all_invoices():
+    all_codes = PermissionCode.Get_All(true)
+    for code in all_codes:
+        filename = invoice_generator.generate_invoice(code_id)
+        flask.send_from_directory("", filename, as_attachment=True)
+
+    return "All invoiced!"
+
 
 @app.route('/messages')
 def messages():
@@ -486,7 +495,7 @@ def create_message_post():
 @app.route('/messages/editMessage/<message_id>', methods=['GET'])
 def edit_message_get(message_id):
     message = Message[message_id]
-    return flask.render_template('messages/edit_message.html', message=message, 
+    return flask.render_template('messages/edit_message.html', message=message,
                                  ip=flask.request.host)
 
 
@@ -505,7 +514,7 @@ def edit_message_post(message_id):
 @app.route('/keywords')
 def keywords():
     all_keywords = Keyword.Get_All()
-    return flask.render_template('keywords/keywords.html', keywords=all_keywords, 
+    return flask.render_template('keywords/keywords.html', keywords=all_keywords,
                                  ip=flask.request.host)
 
 
@@ -538,7 +547,7 @@ def create_keyword_post():
 @app.route('/keywords/editKeyword/<keyword_id>', methods=['GET'])
 def edit_keyword_get(keyword_id):
     keyword = Keyword[keyword_id]
-    return flask.render_template('keywords/edit_keyword.html', keyword=keyword, 
+    return flask.render_template('keywords/edit_keyword.html', keyword=keyword,
                                  ip=flask.request.host)
 
 
